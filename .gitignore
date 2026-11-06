@@ -29,6 +29,6 @@ mlruns/
 # Modelo intermedio (pesado): solo se sube models/model.joblib
 models/final_pipeline.joblib
 
-# Datos procesados: se regeneran con notebooks/03_preprocesamiento.ipynb
-data/processed/*
-!data/processed/.gitkeep
+# Datos procesados: SE SUBEN al repositorio (decisión del grupo, 2026-11-05) para que todos trabajen con la misma
+# partición 80/20 (semilla 42). También se regeneran con notebooks/03_preprocesamiento.ipynb.
+# test.joblib se sube, pero no se usa para decidir nada hasta la validación final.

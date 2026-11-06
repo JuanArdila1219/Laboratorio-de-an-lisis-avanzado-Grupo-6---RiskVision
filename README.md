@@ -39,7 +39,7 @@ clonan **este** repositorio. Para arrancar, sigue `material-del-curso/guias/mont
 ## Datos
 Dataset *Default of Credit Card Clients* (30.000 clientes de un banco de Taiwán), licencia **CC BY 4.0**.
 Cita: Yeh, I. (2009). Default of Credit Card Clients [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C55S3H
-El archivo `.xls` va en `data/raw/` (esa carpeta no se sube a GitHub).
+El archivo `.xls` va en `data/raw/` (esa carpeta no se sube a GitHub). Los datos procesados de `data/processed/` (`train.joblib` y `test.joblib`, la partición 80/20 con semilla 42) **sí se suben**, para que todos usen la misma; también se regeneran con `notebooks/03_preprocesamiento.ipynb`. El conjunto de prueba (`test.joblib`) no se usa para decidir nada hasta la validación final.
 
 ## Equipo
 | Integrante | Rol |

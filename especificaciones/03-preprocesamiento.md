@@ -14,7 +14,7 @@
 - **Se parte por:** ☐ grupo (`GroupShuffleSplit` / `StratifiedGroupKFold`) ☒ fila, estratificada por `default payment next month` (22,12 % incumple)
 - **Proporción de prueba:** 20 %   **Semilla:** 42 (24.000 entrenamiento, 6.000 prueba; igual a la del notebook de selección de modelo)
 - **¿Hay orden temporal que respetar?** ☒ no ☐ sí → cada fila es un cliente con su historial de 6 meses ya resumido en columnas; no hay serie de tiempo por cliente.
-- **Dónde se guarda la prueba:** `data/processed/` (cerrada: **no se mira** hasta la etapa 7)
+- **Dónde se guarda la prueba:** `data/processed/` (cerrada: **no se usa para decidir** hasta la etapa 7; el archivo sí se sube al repositorio, decisión del 2026-11-05)
 
 ## 2. Datos personales
 
