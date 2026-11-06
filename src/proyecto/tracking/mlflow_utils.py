@@ -39,9 +39,25 @@ def _reachable() -> bool:
         return False
 
 
-def configure_mlflow(force_local: bool = False, local_db: Path = LOCAL_DB, env_file: Path = ROOT / ".env") -> str:
-    """Configura MLflow y devuelve una descripción de dónde quedó: 'databricks (...)' o 'local'."""
-    if is_databricks() and not force_local:
+def configure_mlflow(force_local: bool = False, local_db: Path = LOCAL_DB, env_file: Path = ROOT / ".env",
+                     *, backend: str = "auto") -> str:
+    """Configura el destino sin crear experimentos.
+
+    auto conserva perfiles y respaldo local fuera del workspace. Dentro del
+    workspace, o con backend=databricks, comprueba el servidor nativo y propaga
+    errores sin respaldo local. backend=local equivale a force_local=True.
+    """
+    if backend not in {"auto", "local", "databricks"}:
+        raise ValueError("backend debe ser auto, local o databricks")
+    if force_local and backend == "databricks":
+        raise ValueError("force_local es incompatible con backend=databricks")
+    force_local = force_local or backend == "local"
+    if (backend == "databricks" or is_databricks()) and not force_local:
+        # Restablece un posible URI SQLite de una celda anterior. La autenticación
+        # dentro del workspace es nativa; no se lee .env ni se cae a local.
+        mlflow.set_tracking_uri("databricks")
+        mlflow.set_registry_uri("databricks-uc")
+        mlflow.search_experiments(max_results=1)
         return "databricks (dentro del workspace)"
     load_dotenv(env_file)
     if not force_local and os.environ.get("MLFLOW_FORCE_LOCAL") != "1":
@@ -76,17 +92,25 @@ def _databricks_user() -> str:
     return WorkspaceClient().current_user.me().user_name
 
 
+def resolve_experiment_name(name: str) -> str:
+    """Resuelve la ruta sin crear ni activar experimentos."""
+    if uses_databricks():
+        if name.startswith("/"):
+            return name
+        folder = os.environ.get("EXPERIMENT_DIR", "").rstrip("/") or f"/Users/{_databricks_user()}"
+        if not folder.startswith("/"):
+            raise ValueError("EXPERIMENT_DIR debe ser una ruta absoluta del workspace")
+        return f"{folder}/{name}"
+    return name
+
+
 def set_experiment(name: str) -> str:
     """Crea o activa el experimento. En Databricks el nombre debe ser una ruta.
 
     Si `.env` define EXPERIMENT_DIR (una carpeta del workspace que ya existe), el experimento va ahí;
     si no, en /Users/<usuario>/.
     """
-    if uses_databricks():
-        folder = os.environ.get("EXPERIMENT_DIR", "").rstrip("/") or f"/Users/{_databricks_user()}"
-        full_name = f"{folder}/{name}"
-    else:
-        full_name = name
+    full_name = resolve_experiment_name(name)
     mlflow.set_experiment(full_name)
     return full_name
 

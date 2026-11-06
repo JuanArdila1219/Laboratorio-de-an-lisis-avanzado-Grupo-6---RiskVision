@@ -1,0 +1,4 @@
+# Reutiliza las versiones verificadas de la etapa 06, sin cambiar requirements.txt.
+-r requirements-serverless-06.txt
+# Solo para curvas: versión verificada localmente; comprobar en Serverless.
+matplotlib==3.11.2
