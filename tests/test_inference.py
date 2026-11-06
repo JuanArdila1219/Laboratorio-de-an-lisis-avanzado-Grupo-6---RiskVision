@@ -128,3 +128,34 @@ def test_app_module_imports_without_launching_streamlit():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)   # no ejecuta main(): solo importa
     assert callable(module.main) and module.UNKNOWN == "(no sé)"
+
+
+def test_decision_threshold_flags_the_positive_class_when_probability_reaches_it():
+    from proyecto.inference.predict import decide_by_threshold
+    proba = np.array([[0.90, 0.10], [0.80, 0.20], [0.70, 0.30], [0.40, 0.60]])
+    marked = decide_by_threshold(proba, ["0", "1"], 0.20, "1")
+    assert marked.tolist() == [0, 1, 1, 1]  # 0,20 ya cuenta (>=); 0,10 no
+    # con «la clase más probable» (umbral 0,5) solo se marcaría la última fila
+    assert decide_by_threshold(proba, ["0", "1"], 0.5, "1").tolist() == [0, 0, 0, 1]
+
+
+def test_decision_threshold_rejects_invalid_values_and_multiclass():
+    from proyecto.inference.predict import decide_by_threshold
+    proba = np.array([[0.5, 0.5]])
+    for bad in (0, 1, -0.1, 1.5, True):
+        with pytest.raises(ValueError):
+            decide_by_threshold(proba, ["0", "1"], bad, "1")
+    with pytest.raises(ValueError):
+        decide_by_threshold(np.array([[0.2, 0.3, 0.5]]), ["a", "b", "c"], 0.2, "a")
+    with pytest.raises(ValueError):
+        decide_by_threshold(proba, ["0", "1"], 0.2, "x")
+
+
+def test_predict_with_scores_uses_schema_threshold(data, model):
+    schema = make_schema(data)
+    base = predict_with_scores(row(), model, schema)
+    p_high = float(base[f"proba_{CLASSES[1]}"].iloc[0])
+    schema_low = {**schema, "decision_threshold": max(p_high - 0.01, 0.001), "positive_class": CLASSES[1]}
+    schema_high = {**schema, "decision_threshold": min(p_high + 0.01, 0.999), "positive_class": CLASSES[1]}
+    assert predict_with_scores(row(), model, schema_low)["decision"].iloc[0] == CLASSES[1]
+    assert predict_with_scores(row(), model, schema_high)["decision"].iloc[0] == CLASSES[0]

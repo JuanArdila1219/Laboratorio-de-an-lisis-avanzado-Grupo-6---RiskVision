@@ -1,0 +1,272 @@
+{
+  "numeric": [
+    "LIMIT_BAL",
+    "AGE",
+    "PAY_0",
+    "PAY_2",
+    "PAY_3",
+    "PAY_4",
+    "PAY_5",
+    "PAY_6",
+    "BILL_AMT1",
+    "BILL_AMT2",
+    "BILL_AMT3",
+    "BILL_AMT4",
+    "BILL_AMT5",
+    "BILL_AMT6",
+    "PAY_AMT1",
+    "PAY_AMT2",
+    "PAY_AMT3",
+    "PAY_AMT4",
+    "PAY_AMT5",
+    "PAY_AMT6"
+  ],
+  "categorical": [
+    "SEX",
+    "EDUCATION",
+    "MARRIAGE"
+  ],
+  "class_names": [
+    "0",
+    "1"
+  ],
+  "categories": {
+    "SEX": [
+      "1",
+      "2"
+    ],
+    "EDUCATION": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "MARRIAGE": [
+      "1",
+      "2",
+      "3"
+    ]
+  },
+  "observed_range": {
+    "LIMIT_BAL": [
+      10000.0,
+      1000000.0
+    ],
+    "AGE": [
+      21.0,
+      75.0
+    ],
+    "PAY_0": [
+      -2.0,
+      8.0
+    ],
+    "PAY_2": [
+      -2.0,
+      8.0
+    ],
+    "PAY_3": [
+      -2.0,
+      8.0
+    ],
+    "PAY_4": [
+      -2.0,
+      8.0
+    ],
+    "PAY_5": [
+      -2.0,
+      8.0
+    ],
+    "PAY_6": [
+      -2.0,
+      8.0
+    ],
+    "BILL_AMT1": [
+      -165580.0,
+      964511.0
+    ],
+    "BILL_AMT2": [
+      -69777.0,
+      983931.0
+    ],
+    "BILL_AMT3": [
+      -61506.0,
+      855086.0
+    ],
+    "BILL_AMT4": [
+      -81334.0,
+      891586.0
+    ],
+    "BILL_AMT5": [
+      -81334.0,
+      927171.0
+    ],
+    "BILL_AMT6": [
+      -339603.0,
+      961664.0
+    ],
+    "PAY_AMT1": [
+      0.0,
+      873552.0
+    ],
+    "PAY_AMT2": [
+      0.0,
+      1215471.0
+    ],
+    "PAY_AMT3": [
+      0.0,
+      896040.0
+    ],
+    "PAY_AMT4": [
+      0.0,
+      621000.0
+    ],
+    "PAY_AMT5": [
+      0.0,
+      426529.0
+    ],
+    "PAY_AMT6": [
+      0.0,
+      528666.0
+    ]
+  },
+  "median": {
+    "LIMIT_BAL": 140000.0,
+    "AGE": 34.0,
+    "PAY_0": 0.0,
+    "PAY_2": 0.0,
+    "PAY_3": 0.0,
+    "PAY_4": 0.0,
+    "PAY_5": 0.0,
+    "PAY_6": 0.0,
+    "BILL_AMT1": 22330.0,
+    "BILL_AMT2": 21107.0,
+    "BILL_AMT3": 20031.0,
+    "BILL_AMT4": 19004.5,
+    "BILL_AMT5": 18102.5,
+    "BILL_AMT6": 16993.0,
+    "PAY_AMT1": 2100.5,
+    "PAY_AMT2": 2014.0,
+    "PAY_AMT3": 1805.5,
+    "PAY_AMT4": 1500.0,
+    "PAY_AMT5": 1500.0,
+    "PAY_AMT6": 1500.0
+  },
+  "integer_columns": [
+    "LIMIT_BAL",
+    "AGE",
+    "PAY_0",
+    "PAY_2",
+    "PAY_3",
+    "PAY_4",
+    "PAY_5",
+    "PAY_6",
+    "BILL_AMT1",
+    "BILL_AMT2",
+    "BILL_AMT3",
+    "BILL_AMT4",
+    "BILL_AMT5",
+    "BILL_AMT6",
+    "PAY_AMT1",
+    "PAY_AMT2",
+    "PAY_AMT3",
+    "PAY_AMT4",
+    "PAY_AMT5",
+    "PAY_AMT6"
+  ],
+  "valid_range": {
+    "AGE": [
+      18.0,
+      100.0
+    ]
+  },
+  "labels": {
+    "LIMIT_BAL": "Límite de crédito (NT$)",
+    "SEX": "Sexo (1 = hombre, 2 = mujer)",
+    "EDUCATION": "Educación (1 posgrado, 2 universidad, 3 secundaria, 4 otro)",
+    "MARRIAGE": "Estado civil (1 casado, 2 soltero, 3 otro)",
+    "AGE": "Edad (años)",
+    "PAY_0": "Estado de pago, septiembre (-2/-1/0 al día; 1 a 9 = meses de atraso)",
+    "PAY_2": "Estado de pago, agosto (-2/-1/0 al día; 1 a 9 = meses de atraso)",
+    "PAY_3": "Estado de pago, julio (-2/-1/0 al día; 1 a 9 = meses de atraso)",
+    "PAY_4": "Estado de pago, junio (-2/-1/0 al día; 1 a 9 = meses de atraso)",
+    "PAY_5": "Estado de pago, mayo (-2/-1/0 al día; 1 a 9 = meses de atraso)",
+    "PAY_6": "Estado de pago, abril (-2/-1/0 al día; 1 a 9 = meses de atraso)",
+    "BILL_AMT1": "Monto de la factura, septiembre (NT$)",
+    "BILL_AMT2": "Monto de la factura, agosto (NT$)",
+    "BILL_AMT3": "Monto de la factura, julio (NT$)",
+    "BILL_AMT4": "Monto de la factura, junio (NT$)",
+    "BILL_AMT5": "Monto de la factura, mayo (NT$)",
+    "BILL_AMT6": "Monto de la factura, abril (NT$)",
+    "PAY_AMT1": "Pago realizado, septiembre (NT$)",
+    "PAY_AMT2": "Pago realizado, agosto (NT$)",
+    "PAY_AMT3": "Pago realizado, julio (NT$)",
+    "PAY_AMT4": "Pago realizado, junio (NT$)",
+    "PAY_AMT5": "Pago realizado, mayo (NT$)",
+    "PAY_AMT6": "Pago realizado, abril (NT$)"
+  },
+  "review_threshold": 0.55,
+  "format_version": 1,
+  "input_columns": [
+    "LIMIT_BAL",
+    "SEX",
+    "EDUCATION",
+    "MARRIAGE",
+    "AGE",
+    "PAY_0",
+    "PAY_2",
+    "PAY_3",
+    "PAY_4",
+    "PAY_5",
+    "PAY_6",
+    "BILL_AMT1",
+    "BILL_AMT2",
+    "BILL_AMT3",
+    "BILL_AMT4",
+    "BILL_AMT5",
+    "BILL_AMT6",
+    "PAY_AMT1",
+    "PAY_AMT2",
+    "PAY_AMT3",
+    "PAY_AMT4",
+    "PAY_AMT5",
+    "PAY_AMT6"
+  ],
+  "contract": "cleaned_original_predictors_v1",
+  "missing_values": "pipeline_imputation",
+  "categorical_domains": {
+    "SEX": [
+      1,
+      2
+    ],
+    "EDUCATION": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "MARRIAGE": [
+      1,
+      2,
+      3
+    ]
+  },
+  "pay_domain": [
+    -2,
+    -1,
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "decision_rule": "marca incumple (1) si la probabilidad es >= decision_threshold; punto de trabajo del grupo elegido con validacion cruzada, no un costo medido del banco",
+  "positive_class": "1",
+  "decision_threshold": 0.2,
+  "app_title": "RiskVision · Riesgo de impago de tarjeta de crédito",
+  "responsible_use": "- Esta herramienta **apoya** una decisión de seguimiento preventivo; la decisión final es de una persona del área de riesgo.\n- Se entrenó con datos de un banco de Taiwán de 2005 (UCI, CC BY 4.0): no la uses en otro país o época sin validarla de nuevo.\n- El umbral de marcado y la relación de costo 5 a 1 son **hipótesis del grupo**, no costos medidos del banco.\n- **No** la uses para negar crédito de forma automática ni para decidir por sexo, edad o estado civil.\n- Revisa los límites en `models/ficha_modelo.md`."
+}

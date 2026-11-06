@@ -1,6 +1,7 @@
 # Despliegue de la app
 
-> Plantilla en blanco. Complétala durante la clase 5 (viernes 6 de noviembre), después de desplegar la app.
+> **Estado:** la app corre y pasa las comprobaciones en local; **el despliegue en Streamlit Community Cloud sigue pendiente** (requiere la cuenta del grupo).
+> Lo que falta lo completa quien despliegue: enlace, prueba en ventana privada y ensayo cronometrado.
 > Guía paso a paso: `material-del-curso/guias/streamlit-despliegue.md` y `material-del-curso/kit/guia-despliegue-y-presentacion.md`.
 
 ## 1. Enlace y estado
@@ -18,18 +19,18 @@
 
 | Decisión | Motivo |
 |---|---|
-| La app carga `models/model.joblib` desde el repo y **no consulta Databricks** | |
-| Versiones fijadas en `requirements.txt` | |
-| Qué NO se subió al repo (y por qué) | |
+| La app carga `models/model.joblib` desde el repo y **no consulta Databricks** | No poner credenciales en la nube y no depender de la cuota de ninguna plataforma |
+| Versiones fijadas en `requirements.txt` | El modelo es un pipeline serializado: necesita las mismas versiones (Python 3.12, scikit-learn, lightgbm) |
+| Qué NO se subió al repo (y por qué) | `.env`, `mlflow_local.db` y `models/_local/` (traspaso y paquete con huellas): credenciales y archivos pesados o locales |
 | | |
 
 ## 3. Pruebas del enlace público
 
 | Caso | Datos usados | Resultado esperado | Resultado real |
 |---|---|---|---|
-| Normal | | | |
+| Normal | Cliente al día (`PAY_*` ≤ 0) | Resultado «0» | Comprobado en local con `streamlit.testing`: «0» |
 | Límite (cambia la decisión) | | | |
-| Inválido (debe rechazarse con un mensaje claro) | | | |
+| Inválido (debe rechazarse con un mensaje claro) | Edad 5 | Rechazo con mensaje | `AGE: debe estar entre 18 y 100` (comprobado en `scripts/run_etapas_07_09.py` y `tests/`) |
 | Con un campo en «No sé» | | | |
 
 ## 4. Problemas encontrados y plan B

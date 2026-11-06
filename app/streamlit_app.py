@@ -131,6 +131,15 @@ def main() -> None:
         st.write("**Probabilidad por clase**")
         st.bar_chart(pd.DataFrame({"probabilidad": [first[f"proba_{c}"] for c in class_names]}, index=class_names))
 
+    if schema.get("decision_threshold") is not None:
+        with st.expander("¿Cómo se decide? (umbral de trabajo)"):
+            st.markdown(
+                f"Se marca al cliente como **riesgo de incumplir** si su probabilidad es **{schema['decision_threshold']:.0%} o más**. "
+                "Es un umbral bajo a propósito: detectar a quien incumple se valora más que una falsa alarma "
+                "(hipótesis de 5 a 1 del grupo, **no un costo medido del banco**). "
+                "Por eso se marca a alrededor de un tercio de los clientes; no significa que todos vayan a incumplir. "
+                "La decisión final es de una persona."
+            )
     if "cost_matrix" in schema:
         with st.expander("¿Cómo se decide? (matriz de costos)"):
             st.markdown("La decisión es la de **menor costo esperado**, no necesariamente la más probable.")

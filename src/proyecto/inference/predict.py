@@ -68,6 +68,21 @@ def decide_min_cost(proba: np.ndarray, cost_matrix) -> np.ndarray:
     return np.argmin(proba @ np.asarray(cost_matrix, dtype=float), axis=1)
 
 
+def decide_by_threshold(proba: np.ndarray, class_names: list[str], threshold: float, positive_class: str) -> np.ndarray:
+    """Decisión binaria con umbral: elige la clase positiva si su probabilidad llega al umbral.
+
+    Con un umbral menor que 0,5 el modelo marca más clientes que con «la clase más probable»;
+    es la regla con la que se validó el modelo (no un costo medido, solo un punto de trabajo).
+    """
+    if len(class_names) != 2 or positive_class not in class_names:
+        raise ValueError("El umbral de decisión solo aplica a dos clases y requiere positive_class")
+    if isinstance(threshold, bool) or not 0 < float(threshold) < 1:
+        raise ValueError("decision_threshold debe estar entre 0 y 1 (sin los extremos)")
+    positive = class_names.index(positive_class)
+    flagged = proba[:, positive] >= float(threshold)
+    return np.where(flagged, positive, 1 - positive)
+
+
 def _ordered_proba(model, X: pd.DataFrame, class_names: list[str]) -> np.ndarray:
     """Probabilidades en el orden de class_names (reordena si el modelo guarda sus clases con otro orden)."""
     proba = model.predict_proba(X)
@@ -93,7 +108,12 @@ def predict_with_scores(df: pd.DataFrame, model, schema: dict) -> pd.DataFrame:
     most_likely = proba.argmax(axis=1)
 
     cost = schema.get("cost_matrix")
-    decision = decide_min_cost(proba, cost) if cost is not None else most_likely
+    if cost is not None:
+        decision = decide_min_cost(proba, cost)
+    elif schema.get("decision_threshold") is not None:
+        decision = decide_by_threshold(proba, class_names, schema["decision_threshold"], schema["positive_class"])
+    else:
+        decision = most_likely
 
     out = pd.DataFrame(proba, columns=[f"proba_{c}" for c in class_names], index=df.index)
     out.insert(0, "decision", [class_names[i] for i in decision])

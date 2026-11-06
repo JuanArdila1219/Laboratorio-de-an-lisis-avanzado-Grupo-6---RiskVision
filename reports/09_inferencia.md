@@ -1,5 +1,10 @@
 # 09 · Inferencia de RiskVision — Grupo 6
 
+> **Actualización (6 nov 2026):** el recorrido 07→08→09 se ejecutó con datos reales mediante `scripts/run_etapas_07_09.py`
+> (autorizado por el grupo). Resultados y decisión del umbral: `reports/07_umbral_y_resultados.md`. Estado del modelo: ver `reports/registro_08.json`;
+> aprobado por el usuario en nombre del grupo (pendiente de confirmación escrita) y registrado en MLflow local; falta Databricks. Los notebooks conservan sus permisos en False; el texto de abajo
+> describe el protocolo y puede mencionar «pendiente» en lo que ya se ejecutó.
+
 ## Estado y alcance
 
 Implementación preparada para diagnóstico sintético y posterior integración con una interfaz. LightGBM original con paquete E sigue **PROVISIONAL**. No existe todavía un modelo definitivo entrenado, evaluado y aprobado. Esta etapa no ejecuta entrenamiento, Optuna, consultas a datasets, registros remotos ni despliegue. No se utilizan resultados de otra rama como evidencia propia.

@@ -1,7 +1,9 @@
 # Laboratorio-de-an-lisis-avanzado-Grupo-6---RiskVision
 Caso de Negocio Default of Credit Card Clients
 
-**App desplegada:** _enlace público de Streamlit (se completa en la clase 5)_
+**App desplegada:** _enlace público pendiente de publicar en Streamlit Community Cloud_ (en local: `streamlit run app/streamlit_app.py`).
+
+**Resultado:** LightGBM con 5 variables de comportamiento de pago, ROC AUC 0,787 en validación cruzada y 0,782 en la prueba (ya expuesta, no independiente). La app marca como riesgo a quien tenga probabilidad de incumplir ≥ 0,20. Detalle y límites: `models/ficha_modelo.md` e `reports/informe_tecnico.md`.
 
 ## Qué contiene
 Estructura obligatoria del curso. Cada carpeta tiene un propósito:
@@ -16,7 +18,7 @@ Estructura obligatoria del curso. Cada carpeta tiene un propósito:
 | `notebooks/` | Un notebook por etapa; solo orquestan |
 | `src/proyecto/` | Código reutilizable (data, features, models, tracking, inference) |
 | `tests/` | Pruebas con `pytest` |
-| `models/` | `model.joblib` y `ficha_modelo.md` |
+| `models/` | `model.joblib`, `input_schema.json` (lo que carga la app) y `ficha_modelo.md`; `_local/` (no se sube) guarda el paquete verificable |
 | `app/` | `streamlit_app.py` |
 | `reports/` | Una sección por hito e `informe_tecnico.md` |
 | `presentacion/` | `ejecutiva.md` (máximo 5 diapositivas) |
@@ -30,6 +32,8 @@ python scripts/check_databricks.py
 pytest
 streamlit run app/streamlit_app.py
 ```
+
+Para repetir la validación, el registro y la exportación del modelo (07→09; **no abre la prueba**): `python scripts/run_etapas_07_09.py --approved-by "Nombre" --out resultados.json [--approve-definitive --register]`. El resumen de resultados está en `notebooks/10_ejecucion_real_07_09.ipynb`. El registro se hace en Databricks si `.env` tiene conexión y, si no, en MLflow local.
 
 ## De dónde viene este repositorio
 Nació de la rama `feature/estudiantes` del repositorio del curso (ver `LEEME-PRIMERO.md`): una persona del grupo la clonó con

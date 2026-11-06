@@ -1,0 +1,19 @@
+{
+  "modelo": "riskvision_lightgbm_e",
+  "version": "1",
+  "alias": "champion",
+  "destino": "local",
+  "experimento": "riskvision-08-registro",
+  "run_id_registro": "02fbd0ee34d14b748ff85cf15e57cf39",
+  "run_id_evidencia": "10555dbd9598470aa84209dcc8489fe5",
+  "manifest_sha256": "54b91d67442b65cd2a61639ba1f9d53fddc7dfa2af51b6d5a0ff14abba09af94",
+  "estado": "approved_definitive",
+  "creado_utc": "2026-11-06T23:33:05.396906+00:00",
+  "codigo": {
+    "branch": "main",
+    "commit": "aab95cc0f021ba1c4c9ea139f5731b5ac593f8cb",
+    "source": "git",
+    "working_tree_status": "M .gitignore\n M app/streamlit_app.py\n M models/ficha_modelo.md\n M reports/07_validacion.md\n M reports/08_registro.md\n M reports/09_inferencia.md\n M src/proyecto/inference/predict.py\n M tests/test_inference.py"
+  },
+  "nota": "Registro en MLflow LOCAL (mlflow_local.db, no versionado) porque no hay conexion con Databricks en esta maquina. Para Databricks: completar .env (PROFILE o DATABRICKS_HOST/TOKEN) y repetir con scripts/run_etapas_07_09.py --approve-definitive --register."
+}

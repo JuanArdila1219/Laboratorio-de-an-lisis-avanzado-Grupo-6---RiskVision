@@ -1,5 +1,10 @@
 # 07 · Validación e interpretación — RiskVision, Grupo 6
 
+> **Actualización (6 nov 2026):** el recorrido 07→08→09 se ejecutó con datos reales mediante `scripts/run_etapas_07_09.py`
+> (autorizado por el grupo). Resultados y decisión del umbral: `reports/07_umbral_y_resultados.md`. Estado del modelo: ver `reports/registro_08.json`;
+> aprobado por el usuario en nombre del grupo (pendiente de confirmación escrita) y registrado en MLflow local; falta Databricks. Los notebooks conservan sus permisos en False; el texto de abajo
+> describe el protocolo y puede mencionar «pendiente» en lo que ya se ejecutó.
+
 ## Estado
 
 Implementación preparada y comprobable con datos sintéticos. No hay resultados reales propios de etapa 07. Los cuatro permisos de ajuste, calibración, evaluación complementaria y exportación definitiva comienzan desactivados. No existe todavía un modelo definitivo aprobado.

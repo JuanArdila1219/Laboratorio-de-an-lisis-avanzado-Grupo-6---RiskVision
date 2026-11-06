@@ -1,5 +1,10 @@
 # 08 · Registro y persistencia de RiskVision
 
+> **Actualización (6 nov 2026):** el recorrido 07→08→09 se ejecutó con datos reales mediante `scripts/run_etapas_07_09.py`
+> (autorizado por el grupo). Resultados y decisión del umbral: `reports/07_umbral_y_resultados.md`. Estado del modelo: ver `reports/registro_08.json`;
+> aprobado por el usuario en nombre del grupo (pendiente de confirmación escrita) y registrado en MLflow local; falta Databricks. Los notebooks conservan sus permisos en False; el texto de abajo
+> describe el protocolo y puede mencionar «pendiente» en lo que ya se ejecutó.
+
 ## 1. Estado y destino
 
 Implementación preparada para pruebas sintéticas. Referencia: LightGBM original de candidates.py, paquete E, estado **PROVISIONAL**. No existe modelo definitivo aprobado ni evaluación real completa de 07. No se publicaron artefactos ni se creó versión o alias en servicios remotos. No se atribuyen métricas de Estefanía a esta implementación.
