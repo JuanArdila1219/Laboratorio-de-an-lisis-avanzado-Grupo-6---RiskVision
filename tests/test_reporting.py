@@ -104,3 +104,39 @@ def test_notebook_logs_trials_only_once_and_prepares_its_own_report(tmp_path, mo
     assert len([r for r in runs if r.data.tags.get("role") == "optuna_trial"]) == 2
     assert ns["review_summary"]["code"]["branch"] == "sintetico"
     assert ns["review_summary"]["comparison_outcome"] == "pending"
+
+
+def test_notebook_without_mlflow_initializes_logger_and_does_not_register(monkeypatch):
+    root = Path(__file__).resolve().parents[1]
+    notebook = json.loads((root / "notebooks/06_optimizacion.ipynb").read_text(encoding="utf-8"))
+    monkeypatch.delenv("RISKVISION_TRACKING_MODE", raising=False)
+    monkeypatch.setattr(mu, "is_databricks", lambda: False)
+    def forbidden(*a, **kw):
+        pytest.fail("No usar MLflow cuando está deshabilitado")
+    monkeypatch.setattr(mu, "configure_mlflow", forbidden)
+    monkeypatch.setattr(mu, "log_run", forbidden)
+    monkeypatch.setattr(reporting, "log_provisional_report", forbidden)
+    monkeypatch.setattr(reporting, "code_revision", lambda *a, **kw: {"branch": "synthetic", "commit": "abc"})
+    ns = {"os": os, "project_root": root, "pd": pd, "display": lambda *a: None}
+    exec("".join(notebook["cells"][5]["source"]), ns)
+    # Simula la opción de configuración editada por el usuario, sin cambiar el notebook.
+    tracking_cell = "".join(notebook["cells"][7]["source"]).replace("ENABLE_MLFLOW = True", "ENABLE_MLFLOW = False")
+    exec(tracking_cell, ns)
+    assert ns["prepare_tracking"]() == (None, None, None)
+    observed = []
+    def fake_search(X, y, **kwargs):
+        observed.append(kwargs["trial_logger"])
+        study = optuna.create_study(direction="maximize")
+        study.add_trial(optuna.trial.create_trial(value=0.6))
+        return study
+    X, y = _clients(80)
+    ns.update(RUN_OPTIMIZATION=True, trial_logger=object(), run_search=fake_search,
+              CONFIG=tuning.TuningConfig(n_trials=2, n_splits=2, n_repeats=1), SPACE=tuning.SearchSpace(),
+              X_search=X, y_search=y, RESERVE_SEED=7, RESERVE_SHARE=.25, TRAIN_SHA256="synthetic",
+              score_folds=_fake_scores, search_data=X, reserve_data=X.iloc[:20])
+    exec("".join(notebook["cells"][13]["source"]), ns)
+    exec("".join(notebook["cells"][17]["source"]), ns)
+    assert observed == [None]  # también borra el logger de una ejecución anterior
+    assert ns["trial_logger"] is None and ns["trial_run_ids"] == {}
+    assert ns["experiment_id"] is None and ns["provisional_report_run_id"] is None
+    assert ns["review_summary"]["status"] == "pending_review"

@@ -56,7 +56,9 @@ def test_invalid_training_location_fails_before_loading(tmp_path, monkeypatch, f
     monkeypatch.setenv("RISKVISION_TRAIN_PATH", value)
     monkeypatch.setattr(joblib, "load", lambda *a: pytest.fail("No cargar datos inválidos"))
     with pytest.raises((ValueError, FileNotFoundError)):
-        exec(cell(4), {"os": os, "Path": Path})
+        import pandas as pd
+        exec(cell(4), {"os": os, "Path": Path,
+                       "ENVIRONMENT_DIAGNOSTIC": {"versions": {"pandas": pd.__version__}}})
 
 
 def test_explicit_training_location_uses_only_configured_file(tmp_path, monkeypatch):
@@ -75,7 +77,8 @@ def test_explicit_training_location_uses_only_configured_file(tmp_path, monkeypa
         seen.append(source)
         return frame
     monkeypatch.setattr(joblib, "load", fake_load)
-    ns = {"os": os, "Path": Path}
+    ns = {"os": os, "Path": Path,
+          "ENVIRONMENT_DIAGNOSTIC": {"versions": {"pandas": pd.__version__}}}
     exec(cell(4), ns)
     assert seen == [path]
     assert ns["X_all"].shape == (24000, 23)
@@ -140,3 +143,50 @@ def test_notebook_remains_disabled_and_code_compiles():
             compile("".join(c["source"]), f"celda-{index + 1}", "exec")
     assert "RUN_OPTIMIZATION = False" in cell(6)
     assert "test.joblib" not in json.dumps(NOTEBOOK)
+
+
+def test_loading_requires_the_first_cell_diagnostic(monkeypatch):
+    monkeypatch.setattr(joblib, "load", lambda *a: pytest.fail("No cargar sin diagnóstico"))
+    with pytest.raises(RuntimeError, match="celda 1"):
+        exec(cell(4), {"os": os, "Path": Path})
+
+
+def test_fresh_namespace_runs_disabled_without_temporary_cells(tmp_path, monkeypatch):
+    import numpy as np
+    import pandas as pd
+    from sklearn.pipeline import Pipeline
+    from proyecto.config import ID_COL, TARGET
+    from proyecto.data.cleaning import PREDICTORS
+    from proyecto.models import tuning, evaluate
+    from proyecto.tracking import reporting
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("RISKVISION_PROJECT_ROOT", str(ROOT))
+    monkeypatch.setenv("RISKVISION_TRAIN_PATH", str(tmp_path / "train.joblib"))
+    monkeypatch.setenv("RISKVISION_ENVIRONMENT_MODE", "local")
+    monkeypatch.delenv("DATABRICKS_RUNTIME_VERSION", raising=False)
+    (tmp_path / "train.joblib").write_bytes(b"synthetic-only")
+    frame = pd.DataFrame({name: np.ones(24000) for name in PREDICTORS})
+    frame[ID_COL] = np.arange(24000)
+    frame[TARGET] = np.tile([0, 1], 12000)
+    seen = []
+    def fake_load(path):
+        seen.append(path)
+        return frame
+    def forbidden(*a, **kw):
+        pytest.fail("No entrenar, buscar, crear experimentos ni registrar informes")
+    monkeypatch.setattr(joblib, "load", fake_load)
+    monkeypatch.setattr(Pipeline, "fit", forbidden)
+    monkeypatch.setattr(tuning, "run_search", forbidden)
+    monkeypatch.setattr(evaluate, "score_folds", forbidden)
+    monkeypatch.setattr(mu, "configure_mlflow", lambda **kw: "local")
+    monkeypatch.setattr(mlflow, "set_experiment", forbidden)
+    monkeypatch.setattr(reporting, "log_provisional_report", forbidden)
+    ns = {"display": lambda *a: None}  # solo el builtin que proporciona Jupyter
+    for item in NOTEBOOK["cells"]:
+        if item["cell_type"] == "code":
+            exec("".join(item["source"]), ns)
+    assert seen == [tmp_path / "train.joblib"]
+    assert ns["RUN_OPTIMIZATION"] is False
+    assert ns["trial_logger"] is None and ns["study"] is None
+    assert ns["review_summary"] is None
+    assert len(ns["search_data"]) == 18000 and len(ns["reserve_data"]) == 6000

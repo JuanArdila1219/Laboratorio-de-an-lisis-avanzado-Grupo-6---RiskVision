@@ -1,0 +1,14 @@
+# Etapa 06: versiones verificadas por el grupo en Databricks Serverless.
+# Seleccionar un entorno base con Python 3.12.3; pip no configura Python.
+# En Environment, añadir: -r /Workspace/<raiz-del-proyecto>/requirements-serverless-06.txt
+# scipy, databricks-sdk y python-dotenv proceden del entorno base/resolución
+# transitiva: se diagnostican y registran, pero sus versiones no fueron informadas.
+# Este archivo no es un lock completo del entorno ni reemplaza requirements.txt.
+pandas==3.0.6
+numpy==2.3.4
+scikit-learn==1.7.2
+joblib==1.5.2
+lightgbm==4.7.0
+xgboost==3.4.1
+optuna==5.0.0
+mlflow==3.18.0
