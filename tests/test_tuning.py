@@ -1,5 +1,6 @@
 """Pruebas sintéticas y búsquedas diminutas; nunca leen datos de RiskVision."""
 from dataclasses import replace
+from types import SimpleNamespace
 
 import joblib
 import numpy as np
@@ -243,3 +244,119 @@ def test_programming_errors_are_not_silenced_as_failed_trials(clients, config, s
     monkeypatch.setattr(tuning, "score_folds", programming_error)
     with pytest.raises(KeyError):
         tuning.run_search(X, y, config=config, space=space)
+
+
+class RecordingClient:
+    """Cliente de MLflow en memoria; no usa red ni archivos."""
+    def __init__(self):
+        self.runs = {}
+
+    def create_run(self, experiment_id, *, tags, run_name):
+        run_id = f"run-{len(self.runs)}"
+        self.runs[run_id] = {"tags": dict(tags), "params": {}, "metrics": {}, "status": "RUNNING"}
+        return SimpleNamespace(info=SimpleNamespace(run_id=run_id))
+
+    def log_param(self, run_id, key, value):
+        self.runs[run_id]["params"][key] = value
+
+    def log_metric(self, run_id, key, value):
+        self.runs[run_id]["metrics"][key] = value
+
+    def set_tag(self, run_id, key, value):
+        self.runs[run_id]["tags"][key] = value
+
+    def set_terminated(self, run_id, *, status):
+        self.runs[run_id]["status"] = status
+
+
+def test_progressive_logging_records_failure_before_next_trial_without_duplicates(clients, config, space, monkeypatch):
+    client = RecordingClient()
+    logger = tuning.MlflowTrialLogger("123", client=client)
+    calls = []
+    def scores(*args):
+        calls.append(1)
+        if len(calls) == 1:
+            raise ValueError("fallo sintético")
+        assert len(client.runs) == 1  # el primer ensayo ya está registrado
+        return _fake_scores(*args)
+    monkeypatch.setattr(tuning, "score_folds", scores)
+    study = tuning.run_search(*clients, config=config, space=space, trial_logger=logger)
+    for trial in study.trials:
+        logger(study, trial)  # también se llama al terminar: debe ser idempotente
+    assert len(client.runs) == 2
+    assert list(logger.run_ids) == [0, 1]
+    failed, success = client.runs.values()
+    assert failed["status"] == "FAILED" and failed["tags"]["optuna_state"] == "FAIL"
+    assert "roc_auc_cv" not in failed["metrics"]
+    assert success["status"] == "FINISHED" and success["tags"]["optuna_state"] == "COMPLETE"
+    assert success["metrics"]["roc_auc_cv"] == study.best_value
+    for trial in study.trials:
+        run_id = logger.run_ids[trial.number]
+        run = client.runs[run_id]
+        assert run["params"]["trial_number"] == trial.number
+        assert all(run["params"][k] == v for k, v in trial.params.items())
+        assert run["metrics"]["duration_seconds"] >= 0
+        assert run["tags"]["mlflow_run_id"] == run_id
+
+
+@pytest.mark.parametrize("exception", [KeyboardInterrupt, SystemExit])
+def test_interrupted_trial_is_logged_once_as_killed_and_propagated(clients, config, space, monkeypatch, exception):
+    client = RecordingClient()
+    logger = tuning.MlflowTrialLogger("123", client=client)
+    def interrupt(*args):
+        raise exception("interrupción sintética")
+    monkeypatch.setattr(tuning, "score_folds", interrupt)
+    with pytest.raises(exception):
+        tuning.run_search(*clients, config=config, space=space, trial_logger=logger)
+    assert len(client.runs) == 1
+    run = next(iter(client.runs.values()))
+    assert run["status"] == "KILLED"
+    assert run["tags"]["optuna_state"] == "FAIL"
+    assert run["tags"]["outcome"] == "interrupted"
+    assert "roc_auc_cv" not in run["metrics"]
+
+
+def test_logging_does_not_change_proposals_or_scores(clients, config, space, monkeypatch):
+    monkeypatch.setattr(tuning, "score_folds", _fake_scores)
+    previous = tuning.run_search(*clients, config=config, space=space)
+    logger = tuning.MlflowTrialLogger("123", client=RecordingClient())
+    tracked = tuning.run_search(*clients, config=config, space=space, trial_logger=logger)
+    assert [(t.params, t.value, t.state) for t in previous.trials] == [
+        (t.params, t.value, t.state) for t in tracked.trials]
+
+
+def test_programming_error_is_logged_as_failed_and_still_raises(clients, config, space, monkeypatch):
+    logger = tuning.MlflowTrialLogger("123", client=RecordingClient())
+    def bad(*args):
+        raise KeyError("implementación")
+    monkeypatch.setattr(tuning, "score_folds", bad)
+    with pytest.raises(KeyError):
+        tuning.run_search(*clients, config=config, space=space, trial_logger=logger)
+    assert next(iter(logger.client.runs.values()))["status"] == "FAILED"
+
+
+def test_tracking_error_stops_search_and_does_not_retry_creating_runs(clients, config, space, monkeypatch):
+    client = RecordingClient()
+    def fail(*args):
+        raise RuntimeError("falló seguimiento")
+    monkeypatch.setattr(client, "log_metric", fail)
+    monkeypatch.setattr(tuning, "score_folds", _fake_scores)
+    logger = tuning.MlflowTrialLogger("123", client=client)
+    with pytest.raises(RuntimeError, match="seguimiento"):
+        tuning.run_search(*clients, config=config, space=space, trial_logger=logger)
+    assert len(client.runs) == 1
+    assert next(iter(client.runs.values()))["status"] == "FAILED"
+
+
+def test_uncertain_run_creation_is_not_retried(clients, config, space, monkeypatch):
+    client = RecordingClient()
+    attempts = []
+    def uncertain(*args, **kwargs):
+        attempts.append(1)
+        raise ConnectionError("respuesta perdida")
+    monkeypatch.setattr(client, "create_run", uncertain)
+    monkeypatch.setattr(tuning, "score_folds", _fake_scores)
+    with pytest.raises(RuntimeError):
+        tuning.run_search(*clients, config=config, space=space,
+                          trial_logger=tuning.MlflowTrialLogger("123", client=client))
+    assert len(attempts) == 1

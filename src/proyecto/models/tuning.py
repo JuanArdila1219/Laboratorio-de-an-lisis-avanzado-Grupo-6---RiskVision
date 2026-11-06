@@ -97,6 +97,70 @@ class TrialEvaluationError(RuntimeError):
     """Un ensayo no pudo evaluarse; Optuna lo registra FAIL y continúa."""
 
 
+class MlflowTrialLogger:
+    """Callback secuencial, sin configuración de conexión ni reanudación.
+
+    Un objeto por búsqueda. Las llamadas repetidas para un ensayo no crean otro
+    run. Un error de seguimiento detiene la búsqueda: no se oculta ni se reintenta
+    creando duplicados. No garantiza registro tras terminar a la fuerza el proceso.
+    """
+
+    def __init__(self, experiment_id, *, params=None, tags=None, client=None):
+        if client is None:
+            from mlflow import MlflowClient
+            client = MlflowClient()
+        self.client = client
+        self.experiment_id = str(experiment_id)
+        self.params = dict(params or {})
+        self.tags = dict(tags or {})
+        self.run_ids = {}
+        self._study_name = None
+        self._errors = {}
+
+    def __call__(self, study, trial):
+        if not trial.state.is_finished():
+            return
+        if self._study_name not in (None, study.study_name):
+            raise ValueError("Usa un MlflowTrialLogger nuevo por búsqueda")
+        self._study_name = study.study_name
+        if trial.number in self._errors:
+            raise RuntimeError("El seguimiento de este ensayo falló; revisar su run antes de continuar") from self._errors[trial.number]
+        if trial.number in self.run_ids:
+            return
+        interrupted = trial.user_attrs.get("interrupted", False)
+        status = ("KILLED" if interrupted or trial.state == optuna.trial.TrialState.PRUNED else
+                  "FINISHED" if trial.state == optuna.trial.TrialState.COMPLETE else "FAILED")
+        tags = {**self.tags, "role": "optuna_trial", "optuna_state": trial.state.name,
+                "trial_number": str(trial.number), "optuna_study": study.study_name,
+                "outcome": "interrupted" if interrupted else trial.state.name.lower(),
+                "failure_type": trial.user_attrs.get("failure_type", ""),
+                "failure_message": trial.user_attrs.get("failure_message", "")}
+        try:
+            run = self.client.create_run(self.experiment_id, tags=tags, run_name=f"trial-{trial.number:03d}")
+        except BaseException as error:
+            self._errors[trial.number] = error
+            raise
+        run_id = run.info.run_id
+        self.run_ids[trial.number] = run_id
+        try:
+            for name, value in {**self.params, **trial.params, "trial_number": trial.number}.items():
+                self.client.log_param(run_id, name, "None" if value is None else value)
+            if trial.duration is not None:
+                self.client.log_metric(run_id, "duration_seconds", trial.duration.total_seconds())
+            if trial.state == optuna.trial.TrialState.COMPLETE and trial.value is not None:
+                self.client.log_metric(run_id, "roc_auc_cv", float(trial.value))
+            for name in ("roc_auc_std", "avg_precision_mean", "penalty_mean"):
+                value = trial.user_attrs.get(name)
+                if value is not None and np.isfinite(value):
+                    self.client.log_metric(run_id, name, float(value))
+            self.client.set_tag(run_id, "mlflow_run_id", run_id)
+            self.client.set_terminated(run_id, status=status)
+        except BaseException as error:
+            self._errors[trial.number] = error
+            self.client.set_terminated(run_id, status="FAILED")
+            raise
+
+
 def suggest_parameters(trial, space: SearchSpace | None = None) -> dict:
     """Propone los ocho hiperparámetros con restricciones compatibles entre sí."""
     space = space or SearchSpace()
@@ -195,12 +259,13 @@ def create_objective(X_train: pd.DataFrame, y_train, *, config: TuningConfig | N
 
 
 def run_search(X_train: pd.DataFrame, y_train, *, config: TuningConfig | None = None,
-               space: SearchSpace | None = None) -> optuna.study.Study:
+               space: SearchSpace | None = None, trial_logger=None) -> optuna.study.Study:
     """Ejecuta el presupuesto explícito, sin persistencia, refit ni comparación final.
 
     Los fallos esperables cuentan en el presupuesto y quedan como FAIL. Si todos
     fallan, se devuelve el estudio para diagnóstico, sin inventar parámetros:
     best_trial/best_value no existen en ese caso y Optuna lanza ValueError.
+    trial_logger es un callback opcional; sin él no se importa ni usa MLflow.
     No configura MLflow, no carga joblib y no toca test.joblib. Los resultados
     solo describen validación de búsqueda, nunca una mejora ya demostrada.
     """
@@ -213,5 +278,31 @@ def run_search(X_train: pd.DataFrame, y_train, *, config: TuningConfig | None = 
     study.set_user_attr("search_space", {field.name: list(getattr(space, field.name)) for field in fields(space)})
     study.set_user_attr("metric", "roc_auc")
     study.set_user_attr("selection_warning", "Mejor resultado de búsqueda; puede tener optimismo de selección")
-    study.optimize(objective, n_trials=config.n_trials, n_jobs=1, catch=(TrialEvaluationError,), show_progress_bar=False)
+    if trial_logger is None:
+        study.optimize(objective, n_trials=config.n_trials, n_jobs=1, catch=(TrialEvaluationError,), show_progress_bar=False)
+    else:
+        def tracked_objective(trial):
+            try:
+                return objective(trial)
+            except BaseException as error:
+                trial.set_user_attr("interrupted", isinstance(error, (KeyboardInterrupt, SystemExit)))
+                if "failure_type" not in trial.user_attrs:
+                    trial.set_user_attr("failure_type", type(error).__name__)
+                    trial.set_user_attr("failure_message", str(error)[:500])
+                raise
+
+        try:
+            study.optimize(tracked_objective, n_trials=config.n_trials, n_jobs=1,
+                           catch=(TrialEvaluationError,), callbacks=[trial_logger], show_progress_bar=False)
+        except (KeyboardInterrupt, SystemExit):
+            for trial in study.trials:
+                if trial.state == optuna.trial.TrialState.RUNNING and trial.user_attrs.get("interrupted"):
+                    study.tell(trial.number, state=optuna.trial.TrialState.FAIL)
+            raise
+        finally:
+            # Optuna puede omitir callbacks cuando propaga una interrupción/error.
+            # El logger es idempotente; completa el registro sin repetir ensayos.
+            for trial in study.trials:
+                if trial.state.is_finished():
+                    trial_logger(study, trial)
     return study
