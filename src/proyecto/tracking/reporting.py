@@ -59,7 +59,7 @@ def build_provisional_report(*, revision, config, space, study, original_cv_auc,
     return report
 
 
-def log_provisional_report(report, experiment_id, *, client=None):
+def log_provisional_report(report, experiment_id, *, client=None, stage="06"):
     """Artefacto en un run nuevo: no sobrescribe informes de otros runs.
 
     Incluso al repetir esta función crea un run distinto. No registra modelos.
@@ -70,7 +70,7 @@ def log_provisional_report(report, experiment_id, *, client=None):
         client = MlflowClient()
     run = client.create_run(str(experiment_id), run_name=f"provisional-report-{uuid4().hex}",
                             tags={"role": "provisional_report", "status": "pending_review",
-                                  "report_id": report["report_id"], "stage": "06"})
+                                  "report_id": report["report_id"], "stage": str(stage)})
     try:
         client.log_dict(run.info.run_id, report, "reports/provisional.json")
         client.set_terminated(run.info.run_id, status="FINISHED")
