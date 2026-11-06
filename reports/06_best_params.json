@@ -1,0 +1,23 @@
+{
+  "finalista": "LightGBM",
+  "origen": "partida",
+  "parametros": {
+    "n_estimators": 300,
+    "learning_rate": 0.03,
+    "num_leaves": 15,
+    "min_child_samples": 50,
+    "subsample": 0.8,
+    "subsample_freq": 1,
+    "colsample_bytree": 0.8,
+    "random_state": 42,
+    "verbose": -1,
+    "n_jobs": 4
+  },
+  "tracking": "databricks (dentro del workspace)",
+  "experimento": "/Users/estefaniacg1995@gmail.com/riskvision-optimizacion",
+  "n_ensayos": 12,
+  "intervalo_95": [
+    -0.0185,
+    0.007166666666666667
+  ]
+}
