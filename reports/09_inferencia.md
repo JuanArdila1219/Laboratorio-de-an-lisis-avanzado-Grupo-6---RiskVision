@@ -68,3 +68,7 @@ Reutilizar requirements-serverless-06.txt desde Environment, reiniciar la sesió
 Primero verificar el diagnóstico con un paquete sintético en un temporal del entorno. Confirmar imports, carga desde otra sesión, predicción individual/lote, errores y ausencia de publicación. Después completar la evaluación real 07, documentar aprobación y umbral, persistir el paquete real en 08 y solicitar autorización para inferencia real y, por separado, exportación. La prueba original ya fue consultada y no es una evaluación completamente independiente; no se utiliza aquí para seleccionar nada.
 
 No se modificaron los notebooks 01–08, no se desplegó una aplicación y no se verificó una ejecución integral remota de 06–09. El contrato del servicio permite integrar una interfaz más adelante, sin duplicar persistencia o transformaciones; la aplicación existente todavía requiere adaptación para utilizar este servicio seguro.
+
+## Continuidad con la decisión formal del equipo
+
+La contribución de Estefanía y own_real_optimization_executed=False viajan en los metadatos del paquete 08. La inferencia usa el umbral y calibración aprobados de la configuración congelada; no el umbral 1/6 de su experimento ni sus métricas como validación propia. Para paquetes nuevos se comprueba el contrato y la concordancia de esquema/calibración al recuperar el pipeline. El informe 09 identifica el informe 07 y refleja autorización efectiva de la sesión. Los controles siguen False; no hay entrenamiento, acceso a prueba ni aprobación desde 09.

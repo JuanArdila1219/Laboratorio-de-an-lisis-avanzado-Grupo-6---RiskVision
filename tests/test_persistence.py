@@ -161,11 +161,13 @@ def test_synthetic_demonstration(tmp_path):
 
 
 def test_final_fit_reuses_frozen_protocol_without_fitting(monkeypatch):
-    X, _ = _clients(20)
+    from tests.test_decision_handoff import synthetic_handoff
+    from proyecto.config import ID_COL, TARGET
+    X, y = _clients(24000)
+    X[ID_COL], X[TARGET] = range(len(X)), y
+    X = X.loc[:, [ID_COL, *p.PREDICTORS, TARGET]]
     X.attrs["source_sha256"] = "a" * 64
-    decision = dict(model=p.ORIGINAL, frozen_for_evaluation=True, params=deepcopy(LGBM_PARAMS),
-        features=list(PACKAGE_E), training_sha256="a" * 64,
-        settings={p.ORIGINAL: {"calibration": "sigmoid"}})
+    decision = synthetic_handoff("sigmoid")
     calls = []
     def fake_fit(frame, factory, **kw):
         calls.append(kw)

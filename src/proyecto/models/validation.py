@@ -30,6 +30,7 @@ from proyecto.data.cleaning import REQUIRED_COLUMNS, _validate_training_frame
 from proyecto.data.split import assert_disjoint_ids, assert_unique_ids, make_xy, split_stratified
 from proyecto.features.build import PACKAGE_E
 from proyecto.models.candidates import LGBM_PARAMS, make_lgbm, make_logistic
+from proyecto.models.decision import adopted_experiment
 from proyecto.models.evaluate import (THEORETICAL_THRESHOLD, calibration_table,
                                      expected_calibration_error, relative_penalty, technical_metrics)
 
@@ -95,8 +96,7 @@ def provisional_decision(*, revision, versions, training_sha256):
             "versions": dict(versions), "training_sha256": training_sha256,
             "parameter_source": "src/proyecto/models/candidates.py:LGBM_PARAMS",
             "own_real_optimization_executed": False,
-            "antecedent": {"branch": "origin/Estefania", "commit": "e4067168e4f75dfe3c4f9f5e83cf20df797775c5",
-                           "conclusion": "Conservar parámetros originales; experimento distinto, sin atribución propia"},
+            "antecedent": adopted_experiment(),
             "calibration": "pending", "threshold": "pending", "limitations": list(LIMITATIONS)}
 
 

@@ -23,12 +23,13 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.pipeline import Pipeline
 from sklearn.utils.validation import check_is_fitted
 
-from proyecto.config import CATEGORICAL, ROOT
+from proyecto.config import CATEGORICAL, ROOT, ID_COL, TARGET
 from proyecto.data.cleaning import PAY_COLS, PAY_DOMAIN, PREDICTORS, NON_NEGATIVE, _validate_predictors
 from proyecto.inference.predict import InputValidationError, validate_inputs
 from proyecto.inference.schema import build_schema
 from proyecto.features.build import PACKAGE_E
 from proyecto.models.candidates import LGBM_PARAMS, make_lgbm
+from proyecto.models.decision import validate_handoff
 from proyecto.models.validation import ExecutionControls as ValidationControls, ORIGINAL, fit_training_candidate
 from proyecto.tracking.reporting import code_revision
 
@@ -90,6 +91,17 @@ def _check_columns(frame, columns):
         raise InputValidationError("Entrada vacía, inválida o con columnas duplicadas")
     if set(frame.columns) != set(columns):
         raise InputValidationError("Se requieren exactamente los 23 predictores originales, sin ID, objetivo ni derivadas")
+
+
+def _validate_handoff_pipeline(model, schema, decision):
+    validate_handoff(decision)
+    calibrated = isinstance(model, CalibratedClassifierCV)
+    expected = decision["settings"][ORIGINAL]["calibration"]
+    if (calibrated != (expected == "sigmoid")
+            or (calibrated and (model.method != "sigmoid" or model.ensemble is not False))):
+        raise ValueError("La calibración del pipeline no coincide con la decisión autorizada")
+    if schema["input_columns"] != decision["handoff"]["input_columns"]:
+        raise ValueError("El orden del esquema no coincide con el contrato 07→08")
 
 
 def _validate_cleaned_values(frame):
@@ -171,6 +183,10 @@ def require_approved_model(metadata):
             or approval.get("approved") is not True
             or not all(approval.get(key) for key in ("approved_by", "approved_at", "validation_report_id"))):
         raise PermissionError("El modelo no tiene aprobación definitiva documentada; provisional/sintético no es definitivo")
+    if "handoff" in decision:
+        validate_handoff(decision)
+        if approval.get("configuration_sha256") != decision["handoff"]["configuration_sha256"]:
+            raise PermissionError("La aprobación definitiva no corresponde a la configuración autorizada")
 
 
 def save_bundle(model, training_inputs, directory, *, model_name, model_version, decision,
@@ -202,6 +218,8 @@ def save_bundle(model, training_inputs, directory, *, model_name, model_version,
     if not decision.get("params") or any(actual_params.get(key) != value for key, value in decision["params"].items()):
         raise ValueError("Los parámetros del pipeline no coinciden con su decisión")
     schema = create_input_schema(training_inputs)
+    if "handoff" in decision:
+        _validate_handoff_pipeline(model, schema, decision)
     if list(model.feature_names_in_) != schema["input_columns"]:
         raise ValueError("El orden de entrada no coincide con el utilizado en el ajuste")
     smoke = prediction_check(model, training_inputs.head(10), schema)
@@ -308,12 +326,15 @@ def load_bundle(directory, *, trusted=False, expected_manifest_sha256=None, requ
         raise ValueError("Modelo y parámetros documentados no corresponden")
     if list(model.feature_names_in_) != verified["schema"]["input_columns"]:
         raise ValueError("Modelo y esquema no corresponden")
+    if "handoff" in metadata["decision"]:
+        _validate_handoff_pipeline(model, verified["schema"], metadata["decision"])
     return ModelBundle(model, verified["schema"], metadata, verified["manifest_sha256"], str(Path(directory).resolve()))
 
 
 def train_final_reference(frame, *, decision, controls=PersistenceControls()):
     if not controls.train_real:
         raise PermissionError("Entrenamiento final bloqueado: ALLOW_FINAL_REAL_TRAINING=False")
+    validate_handoff(decision or {})
     if (not decision or not decision.get("frozen_for_evaluation") or decision.get("params") != LGBM_PARAMS
             or decision.get("features") != list(PACKAGE_E) or decision.get("model") != ORIGINAL):
         raise PermissionError("Falta configuración congelada de la referencia original")
@@ -321,6 +342,15 @@ def train_final_reference(frame, *, decision, controls=PersistenceControls()):
         raise ValueError("Falta una huella SHA-256 del entrenamiento")
     if frame.attrs.get("source_sha256") != decision.get("training_sha256"):
         raise ValueError("Entrenamiento distinto al de la decisión")
+    if tuple(frame.shape) != (24000, 25):
+        raise ValueError("El ajuste final de 08 requiere los 24.000 registros y 25 columnas")
+    if list(frame.drop(columns=[ID_COL, TARGET])) != decision["handoff"]["input_columns"]:
+        raise ValueError("El orden de predictores no coincide con el contrato")
+    current = dependency_versions()
+    if any(decision["versions"].get(name) != current[name] for name in PACKAGES):
+        raise RuntimeError("El entorno final difiere del validado en 07")
+    if decision["versions"].get("python", "").split(".")[:2] != current["python"].split(".")[:2]:
+        raise RuntimeError("La versión Python final difiere de la validada en 07")
     choice = decision.get("settings", {}).get(decision["model"], {})
     if choice.get("calibration") not in {"none", "sigmoid"}:
         raise ValueError("Calibración no definida")

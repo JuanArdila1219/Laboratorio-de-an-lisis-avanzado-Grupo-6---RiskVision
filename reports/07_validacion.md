@@ -10,7 +10,7 @@ Implementación preparada y comprobable con datos sintéticos. No hay resultados
 - Parámetros originales de `src/proyecto/models/candidates.py:LGBM_PARAMS`, sin cambios. Cada ejecución registra su copia completa, rama, commit, versiones, fecha UTC y SHA-256 del entrenamiento.
 - Regresión logística con E: referencia explicable con sus parámetros originales, escalado y PAY_* como categorías en su pipeline.
 - Optimizado: no disponible por defecto. Requiere evidencia completa, configuración/espacio/semillas compatibles, huella de entrenamiento coincidente y aprobación. El módulo valida sin lanzar Optuna.
-- Antecedente: origin/Estefania, commit e4067168e4f75dfe3c4f9f5e83cf20df797775c5, conservó parámetros originales en otro experimento con otra búsqueda y regla de comparación. No se atribuyen sus cifras a esta implementación. Nuestra optimización real continúa pendiente.
+- Adopción formal: se reconoce a Estefanía y su experimento origin/Estefania, commit e4067168e4f75dfe3c4f9f5e83cf20df797775c5. Se conserva LightGBM original con E, sin repetir Optuna ni atribuir sus cifras a nuestra ejecución. Véase reports/06_adopcion_estefania.md. own_real_optimization_executed permanece False.
 
 ## Protocolo propuesto para revisión antes de ejecutar
 
@@ -21,8 +21,8 @@ Implementación preparada y comprobable con datos sintéticos. No hay resultados
 5. Recomendación descriptiva de calibración: Brier y log loss menores, sin descenso del AUC OOF. No implica selección definitiva ni significación estadística.
 6. Proponer umbral usando únicamente OOF de desarrollo: grilla 0,05–0,95 en pasos de 0,05 más 1/6; minimizar penalización hipotética 5:1, desempatar por menor carga y mayor umbral. No optimiza AUC, que no depende del umbral. El umbral requiere aprobación posterior; 1/6 no es óptimo garantizado sin calibración y matriz de costos válida.
 7. Ajustar candidatos con desarrollo y comprobarlos en la misma reserva. ROC AUC es principal; penalización, calibración y carga son controles. No promover automáticamente un ganador.
-8. Congelar expresamente calibración y umbral por candidato tras revisar entrenamiento. Con permiso, ajustar los pipelines para evaluación con los 24.000 clientes. Esto sigue siendo una decisión provisional, no aprobación definitiva.
-9. Solo con autorización separada, evaluar la prueba previamente expuesta como comprobación complementaria. No seleccionar ni corregir el modelo, calibración o umbral con ella.
+8. Congelar expresamente calibración y umbral por candidato después de revisar OOF y la comprobación interna. 07 no ajusta con 24.000 registros ni exporta modelos.
+9. Tras autorización humana separada, crear el contrato JSON para 08 con informe, huellas, configuración y responsable/UTC. El contrato sigue provisional; 08 es el único responsable del ajuste final. La evaluación complementaria no forma parte de esta ejecución y queda bloqueada.
 
 ## Métricas previstas y resultados pendientes
 
@@ -56,7 +56,7 @@ El análisis por SEX y edad es descriptivo, con tamaño y frecuencia de cada gru
 
 El notebook prepara un registro de decisión y un informe con código, versiones, huella de datos, parámetros, permisos y resultados disponibles. Tras una evaluación autorizada, MLflow recibe un informe provisional en un run nuevo de etapa 07; no se sobrescriben informes ni se registran modelos como definitivos.
 
-La exportación definitiva requiere un permiso independiente, decisiones congeladas y status=approved_definitive, que este registro provisional no establece. La escritura del artefacto es exclusiva, sin sobrescribir modelos previos. La entrega a 08/09 requiere revisar y aprobar configuración, resultados, limitaciones y pruebas de guardar/cargar/predecir en el entorno de destino.
+La exportación de modelos ya no se realiza desde el notebook 07. El ajuste final, la persistencia y cualquier registro se realizan exclusivamente en 08 con sus permisos independientes y una aprobación definitiva separada cuando corresponda. La entrega a 08/09 requiere revisar y aprobar configuración, resultados, limitaciones y pruebas de guardar/cargar/predecir en el entorno de destino.
 
 ## Decisiones pendientes de autorización
 
@@ -69,3 +69,19 @@ La exportación definitiva requiere un permiso independiente, decisiones congela
 ## Entorno
 
 `requirements-serverless-07.txt` hereda las versiones verificadas de etapa 06 y propone matplotlib 3.11.2 para curvas (verificado localmente, pendiente en Serverless). No instala SHAP. Seleccionar el entorno base Python 3.12.3 y configurar la dependencia desde Environment antes de una sesión nueva. La primera celda verifica rutas, imports y dependencias antes de deserializar datos; no usa parches de pandas ni celdas temporales de pruebas anteriores.
+
+## Contrato y protocolo que deben aprobarse antes de ejecutar
+
+Aprobar candidatos original y logística E, partición 18.000/6.000 con semilla 7, cinco pliegues OOF con semilla 42, presupuesto de calibración sigmoid interna de tres pliegues ensemble=False, grilla de umbral y criterio 5:1 hipotético, bootstrap pareado de 1.000 remuestras, métricas principales/secundarias y reglas de revisión. No seleccionar por prueba; no declarar independiente la reserva; no promover automáticamente un ganador. Mantener APPROVED_OPTIMIZED_REPORT=None y APPROVE_OPTIMIZED=False. No es necesario ejecutar nuestra búsqueda 06.
+
+ALLOW_REAL_FIT y ALLOW_REAL_CALIBRATION requieren autorización explícita para ejecutar los ajustes de desarrollo. APPROVE_CONFIGURATION_FOR_EVALUATION congela recomendaciones pero ya no ajusta con todo el entrenamiento. AUTHORIZE_FINAL_FIT_HANDOFF, responsable, fecha UTC y HANDOFF_OUTPUT autorizan exclusivamente un contrato JSON nuevo. Todos comienzan desactivados. La aprobación definitiva es posterior y separada; ALLOW_TEST_EVALUATION y ALLOW_DEFINITIVE_EXPORT permanecen bloqueados en este flujo.
+
+El contrato de decision.py incluye la copia y SHA-256 del informe propio 07, datos/configuración/versiones/revisión, 23 columnas originales en su orden y autorización del único ajuste final en 08. La creación del contrato no cambia status=provisional. No se sobreescriben contratos. La huella del JSON debe entregarse por un canal confiable; SHA-256 no sustituye autenticación ni aprobación humana.
+
+El nombre heredado frozen_for_evaluation se conserva por compatibilidad de API; no implica evaluar la prueba ni entrenar con todo el conjunto desde 07. Si la comparación no respalda LightGBM original, detener el traspaso y revisar la elección y el contrato: no forzar su aprobación por haberlo adoptado como candidato.
+
+## Evidencia de integración (solo sintética)
+
+Regresión local: 406 pruebas aprobadas, excluyendo test_tuning.py y test_reporting.py para no ejecutar Optuna. Verificación final: 22 pruebas aprobadas del contrato y notebook 09 tras reforzar la comprobación de huella del entrenamiento artificial y congelación sin ajuste final. Los recuentos se solapan; no deben sumarse. Se observaron solo las advertencias de deprecación de SQLAlchemy de Tracking local. Se probaron contratos JSON sin sobrescritura, corrupción, cambio de configuración, aprobación separada, entornos/esquemas y pipelines sin calibrar y sigmoid; la integración usa exclusivamente 24.000 clientes generados artificialmente y aprobaciones ficticias claramente identificadas en tests. Ningún resultado constituye validación real del modelo.
+
+Los notebooks 07, 08 y 09 conservan número, tipos e identificadores de celdas, metadatos y salidas sin ejecutar. Todos los permisos reales siguen desactivados. Quedan pendientes ejecución autorizada de 07 en Serverless, revisión del informe, aprobación, ajuste final 08 y carga/inferencia del paquete aprobado en 09.
