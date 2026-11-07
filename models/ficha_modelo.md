@@ -1,6 +1,6 @@
 # Ficha del modelo
 
-> Estado: modelo **aprobado como definitivo por el usuario que ejecutó el flujo, en nombre del grupo (pendiente de confirmación escrita del grupo)** y registrado como `riskvision_lightgbm_e` v1, alias `champion`, en **MLflow local** (`reports/registro_08.json`). Falta el registro en Databricks (no hay conexión en esta máquina).
+> Estado documental: el recibo `reports/registro_08.json` declara `approved_definitive` y registro local v1/champion; la confirmación escrita del grupo sigue pendiente. En esta rama la app se prepara como **demostración académica**, sin conceder una nueva aprobación ni cambiar el registro histórico. Databricks continúa pendiente.
 > Cifras y su motivo: `reports/07_umbral_y_resultados.md`.
 
 ## Qué es
@@ -46,3 +46,7 @@ del 95 % por métrica; solo para la diferencia con la logística.
 ## Reproducibilidad
 
 Código en `src/`, pruebas en `tests/`, notebooks en `notebooks/`, recorrido completo en `scripts/run_etapas_07_09.py`.
+
+## Configuración operativa de la app
+
+Andrés confirmó el umbral 0,20. La fuente activa es models/input_schema.json: decision_threshold, decision_provenance y artifact. El modelo no se reentrenó y sus bytes no se modificaron. Las tablas anteriores conservan sus umbrales y procedencia históricos; no son una reevaluación a 0,20. Los resultados del JSON de la primera corrida siguen provisionales, aunque el recibo posterior declare aprobación: falta unificar documentalmente la aprobación escrita del grupo.

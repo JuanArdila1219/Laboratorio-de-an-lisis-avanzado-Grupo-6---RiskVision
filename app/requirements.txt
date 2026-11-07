@@ -1,0 +1,8 @@
+# Inferencia solamente: versiones del artefacto de Andrés; Python 3.12.
+streamlit==1.66.0
+pandas==3.0.6
+numpy==2.5.4
+scipy==1.18.1
+scikit-learn==1.9.1
+joblib==1.6.0
+lightgbm==4.7.0

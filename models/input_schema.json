@@ -268,5 +268,29 @@
   "positive_class": "1",
   "decision_threshold": 0.2,
   "app_title": "RiskVision · Riesgo de impago de tarjeta de crédito",
-  "responsible_use": "- Esta herramienta **apoya** una decisión de seguimiento preventivo; la decisión final es de una persona del área de riesgo.\n- Se entrenó con datos de un banco de Taiwán de 2005 (UCI, CC BY 4.0): no la uses en otro país o época sin validarla de nuevo.\n- El umbral de marcado y la relación de costo 5 a 1 son **hipótesis del grupo**, no costos medidos del banco.\n- **No** la uses para negar crédito de forma automática ni para decidir por sexo, edad o estado civil.\n- Revisa los límites en `models/ficha_modelo.md`."
+  "responsible_use": "- Esta herramienta **apoya** una decisión de seguimiento preventivo; la decisión final es de una persona del área de riesgo.\n- Se entrenó con datos de un banco de Taiwán de 2005 (UCI, CC BY 4.0): no la uses en otro país o época sin validarla de nuevo.\n- El umbral de marcado y la relación de costo 5 a 1 son **hipótesis del grupo**, no costos medidos del banco.\n- **No** la uses para negar crédito de forma automática ni para decidir por sexo, edad o estado civil.\n- Revisa los límites en `models/ficha_modelo.md`.",
+  "decision_provenance": {
+    "author": "Andrés (aforozco1808-dotcom)",
+    "source_branch": "origin/main",
+    "source_commit": "a272c0429af2b99aa8fe001bc367be178ad8ec09",
+    "source_report": "reports/07_umbral_y_resultados.md",
+    "confirmation": "Umbral operativo 0,20 confirmado por Andrés y por el equipo en esta sesión; no implica nueva aprobación definitiva",
+    "historical_evaluation_threshold": 0.16666666666666666,
+    "limitations": "Elegido después de conocer resultados de prueba a 1/6; sin nuevas métricas ni evaluación a 0,20 en esta preparación"
+  },
+  "artifact": {
+    "name": "riskvision_lightgbm_e",
+    "export_version": "candidate-08",
+    "sha256": "96061e2f63c6e61032843a30c5ad8640eeb25aab763dae2baa3021e84f332c5f",
+    "approval_status": "pending_written_group_confirmation",
+    "dependencies": {
+      "pandas": "3.0.6",
+      "numpy": "2.5.4",
+      "scipy": "1.18.1",
+      "scikit-learn": "1.9.1",
+      "joblib": "1.6.0",
+      "lightgbm": "4.7.0"
+    },
+    "source": "models/model.joblib publicado por Andrés; no modificado ni reentrenado"
+  }
 }

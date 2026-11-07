@@ -35,7 +35,7 @@ MODEL_NAME = "riskvision_lightgbm_e"
 
 # Punto de trabajo de la app (ver reports/07_umbral_y_resultados.md): el umbral más alto de la grilla cuya
 # penalización 5:1 en validación cruzada queda a menos del 2 % del mínimo. NO sale de la prueba.
-OPERATING_THRESHOLD = 0.20
+OPERATING_THRESHOLD = json.loads((Path(__file__).resolve().parents[3] / "models/input_schema.json").read_text(encoding="utf-8"))["decision_threshold"]
 OPERATING_RULE = ("marca incumple (1) si la probabilidad es >= decision_threshold; punto de trabajo del grupo "
                   "elegido con validacion cruzada, no un costo medido del banco")
 
