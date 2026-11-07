@@ -75,6 +75,18 @@ div[data-testid="stMetric"] {
     padding: .6rem .9rem;
 }
 div[data-testid="stExpander"] {border-radius: 12px;}
+.verdict {border-radius: 14px; padding: 1rem 1.4rem; margin-bottom: 1rem;}
+.verdict.low {background: linear-gradient(120deg, #1B7F4B 0%, #34A853 100%);}
+.verdict.mid {background: linear-gradient(120deg, #B7791F 0%, #E6A817 100%);}
+.verdict.high {background: linear-gradient(120deg, #B3261E 0%, #E5484D 100%);}
+.verdict h3 {color: #ffffff; font-size: 1.25rem; margin: 0 0 .3rem 0;}
+.verdict p {color: rgba(255, 255, 255, .95); margin: 0;}
+.probarow {margin: .55rem 0;}
+.probalabel {display: flex; justify-content: space-between; font-size: .92rem; color: #1F2937; margin-bottom: .3rem;}
+.probtrack {background: #E8EEF5; border-radius: 999px; height: 14px; overflow: hidden;}
+.probfill {height: 100%; border-radius: 999px;}
+.probfill.paga {background: linear-gradient(90deg, #2E9E5B, #5BC17C);}
+.probfill.impago {background: linear-gradient(90deg, #C0392B, #E5484D);}
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header[data-testid="stHeader"] {background: transparent;}
@@ -169,28 +181,64 @@ def main() -> None:
         st.error(f"Revisa los datos: {error}")
         return
 
+    def nombre_clase(c: object) -> str:
+        """Traduce la etiqueta técnica de clase a lenguaje claro (binario: paga / impago)."""
+        if len(class_names) == 2:
+            return "No paga (impago)" if str(c) == str(class_names[1]) else "Sí paga (al día)"
+        return f"Clase {c}"
+
     first = result.iloc[0]
     class_names = schema["class_names"]
-    left, right = st.columns([2, 3])
+    probas = {c: float(first[f"proba_{c}"]) for c in class_names}
+    p_impago = probas.get(class_names[1]) if len(class_names) > 1 else None
+
+    # Banner de veredicto: el color comunica el nivel de riesgo de un vistazo.
+    if p_impago is None:
+        nivel, emoji, level = "", "⚖️", "mid"
+    elif p_impago < 0.30:
+        nivel, emoji, level = "Riesgo bajo de impago", "🟢", "low"
+    elif p_impago < 0.70:
+        nivel, emoji, level = "Riesgo moderado de impago", "🟡", "mid"
+    else:
+        nivel, emoji, level = "Riesgo alto de impago", "🔴", "high"
+
+    decision_txt = (
+        "aprobar / seguir con el cliente"
+        if str(first["decision"]) == str(class_names[0])
+        else "denegar o revisar el crédito"
+    )
+    resumen = f"El modelo sugiere <b>{decision_txt}</b>."
+    if p_impago is not None:
+        resumen = f"Probabilidad de impago: <b>{p_impago:.1%}</b> · " + resumen
+    st.markdown(
+        f'<div class="verdict {level}"><h3>{emoji} {nivel}</h3><p>{resumen}</p></div>',
+        unsafe_allow_html=True,
+    )
+
+    left, right = st.columns([3, 2])
     with left:
-        st.metric("Resultado sugerido", str(first["decision"]))
-        if len(class_names) > 1:
-            proba_impago = float(first[f"proba_{class_names[1]}"])
-            st.markdown(f"**Probabilidad de impago:** {proba_impago:.1%}")
-            st.progress(proba_impago)
-        detail = f"Clase más probable: **{first['most_likely']}**"
+        st.markdown("**Probabilidad por clase**")
+        for c in class_names:
+            p = probas[c]
+            fill = "impago" if len(class_names) == 2 and str(c) == str(class_names[1]) else "paga"
+            st.markdown(
+                f'<div class="probarow">'
+                f'<div class="probalabel"><span>{nombre_clase(c)}</span><span>{p:.1%}</span></div>'
+                f'<div class="probtrack"><div class="probfill {fill}" style="width:{p * 100:.1f}%"></div></div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+        detail = f"Clase más probable: **{nombre_clase(first['most_likely'])}**"
         if "expected_cost" in result.columns:
             detail += f" · costo esperado de esta decisión: **{first['expected_cost']:.2f}**"
         st.caption(detail)
+    with right:
         if bool(first["needs_review"]):
             st.warning("**Revisión recomendada:** el modelo duda, o la decisión de menor costo difiere de la clase más probable.")
         else:
             st.success("El modelo está seguro de este resultado.")
         for message in result.attrs.get("warnings", []):
             st.warning(message)
-    with right:
-        st.write("**Probabilidad por clase**")
-        st.bar_chart(pd.DataFrame({"probabilidad": [first[f"proba_{c}"] for c in class_names]}, index=class_names))
 
     if "cost_matrix" in schema:
         with st.expander("¿Cómo se decide? (matriz de costos)"):
