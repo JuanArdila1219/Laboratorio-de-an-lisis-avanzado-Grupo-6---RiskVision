@@ -1,0 +1,53 @@
+{
+  "destino": "local",
+  "experimento": "riskvision-05-torneo",
+  "registro": "a_posteriori",
+  "fuente": "reports/05_torneo_por_pliegue.csv",
+  "candidatos": [
+    {
+      "modelo": "línea base: siempre paga",
+      "run_id": "9a6220b6ca0c4d76aaecdc6e486c0268",
+      "mean_roc_auc": 0.5
+    },
+    {
+      "modelo": "línea base: prior",
+      "run_id": "af763e812e78496480360de828eaf0d4",
+      "mean_roc_auc": 0.5
+    },
+    {
+      "modelo": "línea base: regla PAY_0 ≥ 2",
+      "run_id": "3b98f074cb1d432b8a6e17b099f7a6d1",
+      "mean_roc_auc": 0.6435
+    },
+    {
+      "modelo": "regresión logística",
+      "run_id": "fa85921560e04190b599c66f45e09916",
+      "mean_roc_auc": 0.7785
+    },
+    {
+      "modelo": "bosque aleatorio",
+      "run_id": "f920f12344cb4a4ab584cfad6e37a0b9",
+      "mean_roc_auc": 0.7868
+    },
+    {
+      "modelo": "LightGBM",
+      "run_id": "980084ccd0d7499ba603d358ec6aa6f8",
+      "mean_roc_auc": 0.787
+    },
+    {
+      "modelo": "XGBoost",
+      "run_id": "0c2647ef4d714321932579b2d9fe7324",
+      "mean_roc_auc": 0.7872
+    },
+    {
+      "modelo": "LightGBM + paquete D",
+      "run_id": "ebd9ab151bae4b43b79f8fdf97d07468",
+      "mean_roc_auc": 0.7885
+    },
+    {
+      "modelo": "LightGBM calibrado",
+      "run_id": "87af263957aa4745a502e7d5ca607b9f",
+      "mean_roc_auc": 0.7877
+    }
+  ]
+}

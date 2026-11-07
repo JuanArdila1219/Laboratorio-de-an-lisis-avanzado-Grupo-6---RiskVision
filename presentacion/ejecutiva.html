@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RiskVision · Presentación ejecutiva</title>
+<style>
+  /* Paleta RiskVision: navy (confianza), teal (detección), ámbar (alerta). Contrastes verificados >= 3:1 en marcas y >= 5:1 en texto. */
+  :root {
+    --navy: #0b1f3a;  --navy-2: #14305a;  --ink: #0b1f3a;  --ink-2: #4b5b73;
+    --teal: #0d9488;  --teal-ink: #0f766e; --amber: #d97706; --amber-ink: #92400e;
+    --dot: #8493a8;   --line: #dbe3ee;     --bg: #eef2f8;   --card: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--navy); font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; color: var(--ink); }
+  #stage { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; }
+  .deck { width: 1280px; height: 720px; position: relative; transform-origin: center center; }
+  .slide { position: absolute; inset: 0; background: var(--card); display: none; flex-direction: column; border-radius: 6px; overflow: hidden; }
+  .slide.active { display: flex; }
+  /* Banda superior de marca */
+  .top { height: 64px; background: linear-gradient(90deg, var(--navy), var(--navy-2)); color: #fff; display: flex; align-items: center; padding: 0 40px; gap: 14px; flex: none; }
+  .top .brand { font-weight: 700; letter-spacing: .3px; font-size: 22px; }
+  .top .brand b { color: #5eead4; font-weight: 700; }
+  .top .step { margin-left: auto; font-size: 14px; opacity: .85; letter-spacing: .6px; text-transform: uppercase; }
+  .body { flex: 1; padding: 30px 48px 20px; display: grid; gap: 28px; min-height: 0; }
+  .foot { height: 38px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--line); background: #f8fafd; }
+  h1 { font-size: 40px; line-height: 1.12; margin: 0 0 10px; letter-spacing: -.4px; }
+  h1 em { font-style: normal; color: var(--teal-ink); }
+  .lead { font-size: 21px; color: var(--ink-2); margin: 0 0 14px; line-height: 1.4; }
+  ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; font-size: 19px; }
+  li { font-size: inherit; line-height: 1.4; padding-left: 26px; position: relative; }
+  li::before { content: ""; position: absolute; left: 0; top: .55em; width: 12px; height: 12px; border-radius: 3px; background: var(--teal); }
+  li.warn::before { background: var(--amber); }
+  .quote { margin-top: 14px; border-left: 5px solid var(--teal); background: #eefaf8; padding: 12px 18px; font-size: 20px; font-weight: 600; border-radius: 0 8px 8px 0; }
+  .note { font-size: 14px; color: var(--ink-2); line-height: 1.45; margin-top: 10px; }
+  .cols { grid-template-columns: 1fr 1fr; }
+  .panel { background: var(--bg); border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; justify-content: center; }
+  .panel h3 { margin: 0 0 8px; font-size: 14px; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-2); font-weight: 700; }
+  /* Pictograma y leyenda */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; margin-top: 10px; color: var(--ink); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  svg text { font-family: inherit; }
+  /* Flujo */
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: stretch; }
+  .step-card { background: var(--bg); border-radius: 12px; padding: 16px; position: relative; display: flex; flex-direction: column; gap: 6px; }
+  .step-card .n { width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 15px; }
+  .step-card strong { font-size: 21px; }
+  .step-card p { margin: 0; font-size: 17px; line-height: 1.4; color: var(--ink-2); }
+  .step-card.win { background: #e5f6f3; outline: 2px solid var(--teal); }
+  .step-card:not(:last-child)::after { content: "›"; position: absolute; right: -13px; top: 50%; transform: translateY(-50%); font-size: 26px; color: var(--ink-2); z-index: 1; }
+  /* Tabla */
+  table { border-collapse: collapse; width: 100%; font-size: 16px; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-2); }
+  td.num { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  td.good { color: var(--teal-ink); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+  .pill.on { background: #fde8c8; color: var(--amber-ink); }
+  .pill.off { background: #dbeee9; color: var(--teal-ink); }
+  .tip { position: fixed; pointer-events: none; background: var(--navy); color: #fff; font-size: 13px; padding: 6px 10px; border-radius: 6px; z-index: 9; display: none; max-width: 260px; }
+  /* Controles */
+  .controls { position: fixed; right: 16px; bottom: 12px; display: flex; gap: 8px; z-index: 5; opacity: 0; transition: opacity .25s; }
+  .controls.on { opacity: 1; }
+  .controls button { background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.35); border-radius: 8px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
+  .controls button:hover { background: rgba(255,255,255,.28); }
+  @media print {
+    html, body { background: #fff; height: auto; }
+    #stage { position: static; display: block; }
+    .deck { transform: none !important; width: auto; height: auto; }
+    .slide { display: flex !important; position: relative; width: 1280px; height: 720px; page-break-after: always; border-radius: 0; }
+    .controls, .tip { display: none !important; }
+    @page { size: 1280px 720px; margin: 0; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<div class="deck" id="deck">
+
+<!-- 1 · PROBLEMA ------------------------------------------------------------------------------------------>
+<section class="slide active" aria-label="Diapositiva 1: problema">
+  <div class="top"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 4 7v9c0 8 5.5 13.5 13 16 7.500-2.500 13-8 13-16V7z" fill="#5eead4"/><circle cx="17" cy="16" r="6.500" fill="#0b1f3a"/><circle cx="17" cy="16" r="2.800" fill="#5eead4"/></svg><span class="brand">Risk<b>Vision</b></span><span class="step">1 · El problema</span></div>
+  <div class="body cols">
+    <div>
+      <h1>De cada 100 clientes, <em>22 dejarán de pagar</em></h1>
+      <p class="lead">Y hoy el banco no sabe cuáles.</p>
+      <ul>
+        <li>Un analista de riesgo (caso ilustrativo) tiene tiempo para seguir de cerca a <b>unos cuantos</b> clientes, no a todos.</li>
+        <li class="warn">Si elige mal pierde de dos formas: <b>no ve</b> al que dejará de pagar, o <b>molesta</b> a uno que sí pagaba.</li>
+        <li class="warn">Lo primero nos parece <b>5 veces más grave</b> que lo segundo. <span style="color:var(--ink-2)">(Hipótesis del grupo, no un costo medido del banco.)</span></li>
+      </ul>
+      <div class="quote">La pregunta: ¿a qué clientes miramos primero?</div>
+    </div>
+    <div class="panel">
+      <h3>100 clientes de tarjeta de crédito</h3>
+      <svg id="pic1" viewBox="0 0 520 190" role="img" aria-label="Cien clientes: 22 incumplirán y 78 pagarán; no sabemos cuáles"></svg>
+      <div class="legend">
+        <span><svg width="16" height="16"><circle cx="8" cy="8" r="4" fill="var(--dot)"/></svg> Pagará (78)</span>
+        <span><svg width="16" height="16"><circle cx="8" cy="8" r="5.500" fill="none" stroke="var(--amber)" stroke-width="2.500"/></svg> Dejará de pagar (22)</span>
+      </div>
+      <div class="note">Hoy se ven todos iguales. Fuente: 30.000 clientes de un banco de Taiwán (UCI, 2005): 22,1 % incumple.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Presentación ejecutiva · Grupo 6</span><span>1 / 5</span></div>
+</section>
+
+<!-- 2 · ENFOQUE ------------------------------------------------------------------------------------------>
+<section class="slide" aria-label="Diapositiva 2: enfoque">
+  <div class="top"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 4 7v9c0 8 5.5 13.5 13 16 7.500-2.500 13-8 13-16V7z" fill="#5eead4"/><circle cx="17" cy="16" r="6.500" fill="#0b1f3a"/><circle cx="17" cy="16" r="2.800" fill="#5eead4"/></svg><span class="brand">Risk<b>Vision</b></span><span class="step">2 · Cómo lo resolvimos</span></div>
+  <div class="body" style="grid-template-rows:auto 1fr auto; align-content:start;">
+    <div>
+      <h1>Dejamos que los datos <em>ordenen</em> a los clientes</h1>
+      <p class="lead">Un camino honesto, de los datos a la decisión.</p>
+    </div>
+    <div class="flow">
+      <div class="step-card"><div class="n">1</div><strong>Los datos</strong><p><b>30.000 clientes</b>. Usamos 24.000 para construir y validar y reservamos <b>6.000</b> para confirmar al final (ya se habían explorado antes y lo declaramos).</p></div>
+      <div class="step-card"><div class="n">2</div><strong>Las pistas</strong><p>Pesa sobre todo el <b>último estado de pago</b>. Sumamos 5 señales de comportamiento: uso del cupo, saldo pendiente, rachas de atraso y pagos en cero.</p></div>
+      <div class="step-card"><div class="n">3</div><strong>La competencia</strong><p><b>4 modelos y 3 reglas simples</b>, con las mismas reglas del juego para todos y sin “ayudas” del conjunto reservado.</p></div>
+      <div class="step-card win"><div class="n" style="background:var(--teal)">4</div><strong>El elegido</strong><p><b>LightGBM</b>. La regresión logística quedó cerca, pero por debajo. Descartamos repetir la búsqueda de parámetros: su mejora no se distinguía del ruido.</p></div>
+    </div>
+    <div class="quote" style="margin-top:0">Moraleja: preferimos el modelo sencillo que se puede defender al que “parece” mejor.</div>
+  </div>
+  <div class="foot"><span>Todo el preprocesamiento se aprende solo con los datos de entrenamiento (sin fuga de información)</span><span>2 / 5</span></div>
+</section>
+
+<!-- 3 · RESULTADO ---------------------------------------------------------------------------------------->
+<section class="slide" aria-label="Diapositiva 3: resultado y costo de negocio">
+  <div class="top"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 4 7v9c0 8 5.5 13.5 13 16 7.500-2.500 13-8 13-16V7z" fill="#5eead4"/><circle cx="17" cy="16" r="6.500" fill="#0b1f3a"/><circle cx="17" cy="16" r="2.800" fill="#5eead4"/></svg><span class="brand">Risk<b>Vision</b></span><span class="step">3 · Resultado y costo de negocio</span></div>
+  <div class="body cols">
+    <div>
+      <h1>Con el modelo vemos a <em>15 de los 22</em></h1>
+      <p class="lead">Marcamos a 34 de cada 100 clientes para revisión.</p>
+      <table>
+        <tr><th></th><th style="text-align:right">Sin el modelo</th><th style="text-align:right">Con el modelo</th></tr>
+        <tr><td>Clientes que se marcan</td><td class="num">0</td><td class="num">34</td></tr>
+        <tr><td>De los 22 que fallarán, se ven</td><td class="num">0</td><td class="num good">15 (68 %)</td></tr>
+        <tr><td>De los 34 marcados, aciertan</td><td class="num">—</td><td class="num good">15 (44 %)</td></tr>
+      </table>
+      <div class="note"><b>Por qué el corte en 20 %:</b> frente al corte “teórico” (17 %) revisamos 9 clientes menos por cada 100 (43 → 34), a cambio de perder de vista a 1 o 2 de los 22 que fallarán. Es una hipótesis de trabajo, <b>no ahorro demostrado</b>.</div>
+      <div class="legend" style="margin-top:12px">
+        <span><svg width="16" height="16"><circle cx="8" cy="8" r="6" fill="var(--teal)"/></svg> Marcado y fallará (15)</span>
+        <span><svg width="16" height="16"><circle cx="8" cy="8" r="5.500" fill="none" stroke="var(--amber)" stroke-width="2.500"/></svg> No marcado y fallará (7)</span>
+        <span><svg width="16" height="16"><rect x="3" y="3" width="10" height="10" rx="2" fill="none" stroke="var(--dot)" stroke-width="2.200"/></svg> Marcado y pagaba (19)</span>
+        <span><svg width="16" height="16"><circle cx="8" cy="8" r="3.500" fill="var(--dot)"/></svg> No marcado y pagará (59)</span>
+      </div>
+    </div>
+    <div style="display:grid; gap:16px; grid-template-rows: auto auto; align-content:start">
+      <div class="panel">
+        <h3>Los mismos 100 clientes, con el modelo</h3>
+        <svg id="pic3" viewBox="0 0 520 160" role="img" aria-label="De 100 clientes: 15 marcados que fallarán, 7 que fallarán sin marcar, 19 marcados que pagaban y 59 que pagarán sin marcar"></svg>
+      </div>
+      <div class="panel">
+        <h3>Capacidad de ordenar por riesgo (ROC AUC)</h3>
+        <svg id="bars3" viewBox="0 0 520 168" role="img" aria-label="ROC AUC: azar 0,50; regla PAY_0 >= 2 0,64; regresión logística 0,78; LightGBM 0,79"></svg>
+        <div class="note" style="margin-top:2px">Validación cruzada (24.000 clientes). En la prueba: <b>0,782</b> (ya se había expuesto: no es evaluación independiente).</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Cifras por cada 100 clientes = validación cruzada. Costo relativo 5 a 1: hipótesis del grupo.</span><span>3 / 5</span></div>
+</section>
+
+<!-- 4 · DEMO --------------------------------------------------------------------------------------------->
+<section class="slide" aria-label="Diapositiva 4: demo de la app">
+  <div class="top"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 4 7v9c0 8 5.5 13.5 13 16 7.500-2.500 13-8 13-16V7z" fill="#5eead4"/><circle cx="17" cy="16" r="6.500" fill="#0b1f3a"/><circle cx="17" cy="16" r="2.800" fill="#5eead4"/></svg><span class="brand">Risk<b>Vision</b></span><span class="step">4 · Veámoslo funcionar</span></div>
+  <div class="body" style="grid-template-rows:auto 1fr auto; align-content:start">
+    <div>
+      <h1>Un formulario, una <em>probabilidad</em>, una decisión</h1>
+      <p class="lead">Enlace de la app: <b>pendiente de publicar</b> en Streamlit Community Cloud (hoy: <code>streamlit run app/streamlit_app.py</code>).</p>
+    </div>
+    <div class="panel" style="justify-content:flex-start">
+      <h3>Probabilidad de incumplir y corte de decisión (20 %)</h3>
+      <svg id="gauge4" viewBox="0 0 1100 170" role="img" aria-label="Escala de 0 a 100 %: normal 2 %, límite 20 %, alto riesgo 89 %, con el corte en 20 %"></svg>
+    </div>
+    <table>
+      <tr><th>Caso</th><th>Qué pasa</th><th>Decisión</th></tr>
+      <tr><td><b>Normal</b> · cliente de bajo riesgo</td><td>Probabilidad 2 %</td><td><span class="pill off">No marcar</span></td></tr>
+      <tr><td><b>Límite</b> · justo en el corte</td><td>Probabilidad 20 %: cambia la decisión</td><td><span class="pill on">Marcar</span></td></tr>
+      <tr><td><b>Inválido</b> · edad 5 años</td><td>La app lo rechaza: «AGE: debe estar entre 18 y 100»</td><td><span class="pill on">Error claro</span></td></tr>
+    </table>
+  </div>
+  <div class="foot"><span>La app explica cómo decide y recuerda que la decisión final es de una persona. Plan B: captura con fecha y app en local.</span><span>4 / 5</span></div>
+</section>
+
+<!-- 5 · RIESGOS ------------------------------------------------------------------------------------------>
+<section class="slide" aria-label="Diapositiva 5: riesgos y siguientes pasos">
+  <div class="top"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 4 7v9c0 8 5.5 13.5 13 16 7.500-2.500 13-8 13-16V7z" fill="#5eead4"/><circle cx="17" cy="16" r="6.500" fill="#0b1f3a"/><circle cx="17" cy="16" r="2.800" fill="#5eead4"/></svg><span class="brand">Risk<b>Vision</b></span><span class="step">5 · Riesgos y siguientes pasos</span></div>
+  <div class="body cols">
+    <div class="panel" style="justify-content:flex-start">
+      <h3>Lo que el modelo NO dice</h3>
+      <ul style="font-size:21px">
+        <li class="warn"><b>No explica causas ni calcula ahorro</b>, y no debe negar crédito por sí solo.</li>
+        <li class="warn"><b>Marca a 1 de cada 3 clientes:</b> es mucha carga de revisión; es una decisión de negocio, no del modelo.</li>
+        <li class="warn"><b>Un solo banco y un solo año (2005):</b> puede no servir en otro país o época.</li>
+        <li class="warn"><b>Equidad:</b> sexo, edad y estado civil son sensibles. El tramo de 45 a 60 años rinde algo menos (AUC 0,75).</li>
+      </ul>
+    </div>
+    <div class="panel" style="justify-content:flex-start">
+      <h3>Qué sigue</h3>
+      <ul style="font-size:21px">
+        <li><b>Pedir al banco el costo real y su capacidad de revisión</b> para recalcular el corte.</li>
+        <li><b>Con más tiempo:</b> optimización propia de parámetros y variables de tendencia de pagos.</li>
+        <li><b>En producción vigilar</b> el retraso de pago y la tasa de incumplimiento.</li>
+        <li><b>Una decisión que cambiaríamos:</b> fijar el corte <i>antes</i> de abrir la prueba. Lo elegimos después de verla (con datos de entrenamiento) y lo declaramos.</li>
+      </ul>
+      <div class="quote">Honestidad primero: así se defiende un modelo.</div>
+    </div>
+  </div>
+  <div class="foot"><span>RiskVision · Grupo 6 · Maestría en Ingeniería Analítica</span><span>5 / 5</span></div>
+</section>
+
+</div>
+</div>
+
+<div class="tip" id="tip"></div>
+<div class="controls"><button id="prev" aria-label="Anterior">←</button><button id="next" aria-label="Siguiente">→</button><button id="full">Pantalla completa</button></div>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
+const C = { dot: "#8493a8", teal: "#0d9488", amber: "#d97706", navy: "#0b1f3a", ink2: "#4b5b73", line: "#c6d2e2" };
+const tip = document.getElementById("tip");
+function hover(node, text) {
+  node.addEventListener("mousemove", e => { tip.textContent = text; tip.style.display = "block"; tip.style.left = (e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; });
+  node.addEventListener("mouseleave", () => tip.style.display = "none");
+}
+/* Marcadores: la identidad no depende solo del color (forma + relleno distintos). */
+function mark(g, kind, x, y, label) {
+  let n;
+  if (kind === "ok")        n = el("circle", { cx: x, cy: y, r: 6, fill: C.dot }, g);                                           // no marcado, pagará
+  else if (kind === "fail") n = el("circle", { cx: x, cy: y, r: 8.500, fill: "none", stroke: C.amber, "stroke-width": 3.200 }, g); // fallará (anillo ámbar)
+  else if (kind === "hit")  n = el("circle", { cx: x, cy: y, r: 9, fill: C.teal }, g);                                          // marcado y fallará
+  else                      n = el("rect", { x: x - 8, y: y - 8, width: 16, height: 16, rx: 3, fill: "none", stroke: C.dot, "stroke-width": 3 }, g); // marcado y pagaba
+  n.setAttribute("tabindex", "-1"); hover(n, label); return n;
+}
+function pictogram(id, kinds, labels) {
+  const svg = document.getElementById(id); const w = 520, cols = 20, gap = 25, x0 = 27, y0 = 26;
+  let i = 0;
+  kinds.forEach(([kind, count]) => { for (let k = 0; k < count; k++, i++) { mark(svg, kind, x0 + (i % cols) * gap, y0 + Math.floor(i / cols) * 30, labels[kind]); } });
+}
+/* Diapositiva 1: 22 fallarán y 78 pagarán, mezclados (no se sabe cuáles). Orden fijo para que sea reproducible. */
+const positions = new Set([3, 8, 14, 19, 23, 31, 36, 42, 47, 55, 58, 63, 66, 71, 74, 79, 82, 86, 90, 93, 96, 99]);
+const kinds1 = Array.from({ length: 100 }, (_, i) => positions.has(i) ? "fail" : "ok");
+(function () { const svg = document.getElementById("pic1"); kinds1.forEach((k, i) => mark(svg, k, 27 + (i % 20) * 25, 28 + Math.floor(i / 20) * 36, k === "fail" ? "Dejará de pagar" : "Pagará")); })();
+/* Diapositiva 3: 15 + 7 + 19 + 59 = 100 (validación cruzada, corte 20 %). */
+pictogram("pic3", [["hit", 15], ["flag", 19], ["fail", 7], ["ok", 59]],
+  { hit: "Marcado y fallará", flag: "Marcado, pero pagaba (falsa alarma)", fail: "No marcado y fallará (se nos escapa)", ok: "No marcado y pagará" });
+/* Barras de AUC: un solo tono; resalta el modelo elegido. */
+(function () {
+  const svg = document.getElementById("bars3"); const rows = [["Azar", 0.50], ["Regla PAY_0 ≥ 2", 0.6435], ["Regresión logística", 0.7785], ["LightGBM (elegido)", 0.787]];
+  const x0 = 150, w = 340, lo = 0.4, hi = 0.85;
+  rows.forEach(([name, v], i) => {
+    const y = 8 + i * 40, bw = (v - lo) / (hi - lo) * w, top = i === 3;
+    el("text", { x: x0 - 10, y: y + 18, "text-anchor": "end", "font-size": 14, fill: C.navy, "font-weight": top ? 700 : 400 }, svg).textContent = name;
+    const bar = el("path", { d: `M${x0},${y} h${bw - 4} a4,4 0 0 1 4,4 v20 a4,4 0 0 1 -4,4 h-${bw - 4} z`, fill: top ? C.teal : "#a9b6c9" }, svg);
+    hover(bar, `${name}: ROC AUC ${v.toFixed(3).replace(".", ",")}`);
+    el("text", { x: x0 + bw + 8, y: y + 19, "font-size": 14, "font-weight": 700, fill: C.navy }, svg).textContent = v.toFixed(2).replace(".", ",");
+  });
+  el("line", { x1: x0, y1: 4, x2: x0, y2: 164, stroke: C.line, "stroke-width": 1.500 }, svg);
+})();
+/* Diapositiva 4: escala de probabilidad con el corte. */
+(function () {
+  const svg = document.getElementById("gauge4"); const x0 = 40, w = 1020, y = 70;
+  const X = p => x0 + p / 100 * w;
+  el("rect", { x: x0, y: y - 11, width: X(20) - x0, height: 22, rx: 11, fill: "#dbeee9" }, svg);
+  el("rect", { x: X(20), y: y - 11, width: x0 + w - X(20), height: 22, rx: 11, fill: "#fde8c8" }, svg);
+  el("line", { x1: X(20), y1: y - 34, x2: X(20), y2: y + 16, stroke: C.navy, "stroke-width": 3 }, svg);
+  el("text", { x: X(20), y: y - 42, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: C.navy }, svg).textContent = "Corte de decisión: 20 %";
+  el("text", { x: X(10), y: y + 74, "text-anchor": "middle", "font-size": 15, fill: "#0f766e", "font-weight": 700 }, svg).textContent = "No marcar";
+  el("text", { x: X(60), y: y + 74, "text-anchor": "middle", "font-size": 15, fill: "#92400e", "font-weight": 700 }, svg).textContent = "Marcar para revisión";
+  [[1.7, "Normal", "ok"], [20, "Límite", "hit"], [88.8, "Alto riesgo", "hit"]].forEach(([p, name, kind]) => {
+    const g = el("g", {}, svg);
+    const c = el("circle", { cx: X(p), cy: y, r: 12, fill: kind === "ok" ? C.dot : C.teal, stroke: "#fff", "stroke-width": 3 }, g);
+    hover(c, `${name}: probabilidad ${p.toFixed(1).replace(".", ",")} %`);
+    el("text", { x: X(p), y: y + 40, "text-anchor": "middle", "font-size": 15, fill: C.navy, "font-weight": 700 }, g).textContent = `${name} · ${p.toFixed(p < 10 ? 0 : 0)} %`;
+  });
+  [0, 20, 40, 60, 80, 100].forEach(t => el("text", { x: X(t), y: y + 100, "text-anchor": "middle", "font-size": 13, fill: C.ink2 }, svg).textContent = t + " %");
+})();
+
+/* Navegación */
+const slides = [...document.querySelectorAll(".slide")]; let cur = 0;
+function show(i) { cur = Math.max(0, Math.min(slides.length - 1, i)); slides.forEach((s, k) => s.classList.toggle("active", k === cur)); location.hash = "#" + (cur + 1); }
+document.getElementById("prev").onclick = () => show(cur - 1); document.getElementById("next").onclick = () => show(cur + 1);
+document.getElementById("full").onclick = () => document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+addEventListener("keydown", e => { if (["ArrowRight", "PageDown", " "].includes(e.key)) show(cur + 1); if (["ArrowLeft", "PageUp"].includes(e.key)) show(cur - 1); if (e.key === "Home") show(0); if (e.key === "End") show(slides.length - 1); });
+let hideTimer; addEventListener('mousemove', () => { const c = document.querySelector('.controls'); c.classList.add('on'); clearTimeout(hideTimer); hideTimer = setTimeout(() => c.classList.remove('on'), 2500); });
+function fit() { const d = document.getElementById("deck"); const s = Math.min(innerWidth / 1280, innerHeight / 720); d.style.transform = `scale(${s})`; }
+addEventListener("resize", fit); fit();
+const start = parseInt(location.hash.slice(1), 10); if (start >= 1 && start <= slides.length) show(start - 1);
+</script>
+</body>
+</html>

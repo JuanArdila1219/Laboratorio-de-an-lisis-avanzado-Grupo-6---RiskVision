@@ -2,58 +2,81 @@
 marp: true
 theme: default
 paginate: true
-header: "Presentación ejecutiva · RiskVision"
+header: "RiskVision · Grupo 6"
 footer: "Casos Avanzados · Maestría en Ingeniería Analítica"
 ---
 
-# 1 · Problema
+# 1 · De cada 100 clientes, 22 dejarán de pagar
 
-- **¿Quién decide?** El área de riesgo de crédito de un banco.
-- **¿Qué decide con el resultado?** A qué clientes de tarjeta hacerles seguimiento preventivo, ajustar el límite u ofrecer reestructurar la deuda.
-- **¿Cuánto cuesta equivocarse?** Dejar pasar a un cliente que no pagará cuesta más que una falsa alarma. Suponemos **5 veces más** (hipótesis del grupo, no un costo medido).
+**Y hoy el banco no sabe cuáles.**
 
-> **Detectar a tiempo a quien dejará de pagar, sin revisar a todos.**
+- Un analista de riesgo (caso ilustrativo) tiene tiempo para **seguir de cerca a unos cuantos clientes**, no a todos.
+- Si elige mal, pierde en dos sentidos: **no ve** al cliente que dejará de pagar, o **molesta** a uno que sí pagaba.
+- Equivocarse en el primer sentido nos parece **5 veces más grave** que en el segundo. _(Hipótesis del grupo; no es un costo medido del banco.)_
 
----
+> **La pregunta:** ¿a qué clientes miramos primero?
 
-# 2 · Enfoque
-
-- **Los datos:** 30.000 clientes de un banco de Taiwán (2005), 22 % incumple. Usamos 24.000 para construir y validar el modelo y 6.000 para una comprobación final.
-- **Cómo se validó con honestidad:** cada fila es un cliente distinto, así que se parte por cliente; todo el preprocesamiento se aprende solo con los datos de entrenamiento.
-- **Qué se comparó y qué se eligió:** 5 modelos y 3 reglas simples. Elegimos LightGBM; la regresión logística quedó 0,008 por debajo.
-- **Qué se descartó y por qué:** quitar el sexo del modelo (casi no cambia, pero se vigila la equidad) y repetir la búsqueda de parámetros (la mejora de Estefanía no se distinguía del ruido).
+<!-- Notas (2 min): presentar al analista, el dilema de "a quién reviso" y la hipótesis 5 a 1 como supuesto, no como dato. -->
 
 ---
 
-# 3 · Resultado y costo de negocio
+# 2 · Dejamos que los datos ordenen a los clientes
+
+- **30.000 clientes** de un banco de Taiwán (2005). Guardamos **6.000 aparte** para confirmar al final (ya se habían explorado antes y lo declaramos).
+- **Pistas que descubrimos:** el último estado de pago pesa más que cualquier otra variable; sumamos 5 señales de comportamiento (uso del cupo, saldo pendiente, rachas de atraso).
+- **Competencia entre modelos:** 4 modelos y 3 reglas simples, con las mismas reglas del juego. Ganó **LightGBM**; la regresión logística quedó cerca, pero por debajo.
+- **Lo que descartamos:** repetir la búsqueda de parámetros, porque su mejora no se distinguía del ruido.
+
+> **Moraleja:** preferimos el modelo sencillo que se puede defender al que "parece" mejor.
+
+<!-- Notas (parte del minuto 2 y del bloque de resultados): sin nombres de algoritmos en el titular. -->
+
+---
+
+# 3 · La historia en números
+
+De cada 100 clientes: **22 dejarán de pagar**.
 
 | | Sin el modelo | Con el modelo |
 |---|---|---|
-| Capacidad de ordenar clientes por riesgo (ROC AUC) | 0,50 (azar) | **0,78** |
-| Clientes que incumplen y detectamos | 0 % ("todos pagan") | **68 %** |
-| Clientes que se marcan para revisar | 0 % | **34 %** |
+| Clientes que el analista marca | 0 | **34** |
+| De los 22 que fallarán, ve a… | 0 | **15 (68 %)** |
+| De los 34 marcados, aciertan… | — | **15 (44 %)** |
 
-- De cada 100 clientes marcados, **44** realmente incumplen (la tasa general es 22).
-- Subir el umbral de 1/6 a 0,20 baja la revisión **20 %** a cambio de perder 7 puntos de detección.
-- _Nota técnica:_ AUC 0,787 en validación cruzada y 0,782 en la prueba. La prueba ya había sido expuesta, así que no es una evaluación independiente. El costo 5 a 1 no es dinero ni ahorro demostrado.
+- El modelo ordena bien: **ROC AUC 0,79** (0,50 sería tirar una moneda).
+- Fijamos el corte en **20 % de probabilidad**: revisar 9 clientes menos por cada 100 que con el corte "teórico" (43 → 34), a cambio de perder de vista a 1 o 2 de los 22 que fallarán.
+
+_Nota técnica:_ AUC 0,787 en validación cruzada y 0,782 en la prueba. La prueba ya se había expuesto antes, así que no es una evaluación independiente. Los números por cada 100 son los de validación cruzada.
+
+<!-- Notas (3 min): contar la cifra, luego el motivo del corte; el costo 5 a 1 no es ahorro en dinero. -->
 
 ---
 
-# 4 · Demo de la app
+# 4 · Veámoslo funcionar
 
-**Enlace:** _pendiente de publicar en Streamlit Community Cloud_ (en local: `streamlit run app/streamlit_app.py`).
+**Enlace de la app:** _pendiente de publicar en Streamlit Community Cloud_ (hoy corre con `streamlit run app/streamlit_app.py`).
 
-1. **Un caso normal:** cliente al día en todos los meses → resultado «0» (no marcar).
-2. **Un caso límite:** cliente con retrasos recientes y pagos bajos → cambia a «1» (marcar) cuando su probabilidad llega a 20 %.
-3. **Un dato inválido:** edad 5 → la app lo rechaza: «AGE: debe estar entre 18 y 100».
+| Caso | Qué pasa |
+|---|---|
+| **Normal:** cliente de bajo riesgo | Probabilidad 2 % → **no marcar** |
+| **Límite:** justo en el corte | Probabilidad 20 % → **marcar** (cambia la decisión) |
+| **Alto riesgo** | Probabilidad 89 % → **marcar** |
+| **Inválido:** edad 5 años | La app **lo rechaza**: «AGE: debe estar entre 18 y 100» |
+
+La app explica en pantalla cómo decide y recuerda que **la decisión final es de una persona**.
 
 > Plan B: captura de pantalla con fecha y la app en local.
 
+<!-- Notas (4 min): abrir la app, no leer la diapositiva. Probar el enlace antes en ventana privada. -->
+
 ---
 
-# 5 · Riesgos y siguientes pasos
+# 5 · Lo que el modelo NO dice, y qué sigue
 
-- **Qué NO hace el modelo:** no explica causas, no calcula ahorro y no debe decidir solo ni negar crédito automáticamente.
-- **Límites de los datos:** un solo banco de Taiwán en 2005; puede no servir en otro país o época. Marca a 1 de cada 3 clientes: es mucha carga de revisión.
-- **Uso responsable:** sexo, edad y estado civil son variables sensibles; no se usan para decidir a quién negar crédito. El tramo de 45 a 60 años rinde algo menos (AUC 0,75).
-- **Siguientes pasos:** confirmar con el banco el costo real y la capacidad de revisión, y recalcular el umbral; vigilar en producción el retraso de pago (`PAY_0`) y la tasa de incumplimiento.
+- **No explica causas ni calcula ahorro.** Y no debe negar crédito por sí solo.
+- **Marca a 1 de cada 3 clientes:** es mucha carga de revisión. Es una decisión de negocio, no del modelo.
+- **Datos de un solo banco y de 2005:** puede no servir en otro país o época. Vigilamos la equidad: el tramo de 45 a 60 años rinde algo menos (AUC 0,75).
+- **Si tuviéramos más tiempo:** pediríamos al banco el **costo real** y su **capacidad de revisión** para recalcular el corte; después, una optimización propia y variables de tendencia de pagos.
+- **Una decisión que cambiaríamos:** fijar el corte *antes* de abrir la prueba. Lo elegimos después de verla (con datos de entrenamiento) y lo declaramos.
+
+<!-- Notas (1 min): cierre honesto; quién responde preguntas de negocio y quién las técnicas. -->

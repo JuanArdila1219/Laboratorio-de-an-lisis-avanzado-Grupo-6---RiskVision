@@ -21,7 +21,7 @@ Estructura obligatoria del curso. Cada carpeta tiene un propósito:
 | `models/` | `model.joblib`, `input_schema.json` (lo que carga la app) y `ficha_modelo.md`; `_local/` (no se sube) guarda el paquete verificable |
 | `app/` | `streamlit_app.py` |
 | `reports/` | Una sección por hito e `informe_tecnico.md` |
-| `presentacion/` | `ejecutiva.md` (máximo 5 diapositivas) |
+| `presentacion/` | `ejecutiva.md` (máximo 5 diapositivas) y `ejecutiva.html` (versión visual con la marca RiskVision: ábrela en el navegador, flechas para avanzar, Ctrl+P para PDF) |
 
 ## Cómo ejecutarlo
 ```bash
@@ -33,7 +33,7 @@ pytest
 streamlit run app/streamlit_app.py
 ```
 
-Para repetir la validación, el registro y la exportación del modelo (07→09; **no abre la prueba**): `python scripts/run_etapas_07_09.py --approved-by "Nombre" --out resultados.json [--approve-definitive --register]`. El resumen de resultados está en `notebooks/10_ejecucion_real_07_09.ipynb`. El registro se hace en Databricks si `.env` tiene conexión y, si no, en MLflow local.
+Para repetir la validación, el registro y la exportación del modelo (07→09; **no abre la prueba**): `python scripts/run_etapas_07_09.py --approved-by "Nombre" --out resultados.json [--approve-definitive --register]`. El resumen de resultados está en `notebooks/10_resumen_resultados_07_09.ipynb`. El registro se hace en Databricks si `.env` tiene conexión y, si no, en MLflow local.
 
 ## De dónde viene este repositorio
 Nació de la rama `feature/estudiantes` del repositorio del curso (ver `LEEME-PRIMERO.md`): una persona del grupo la clonó con

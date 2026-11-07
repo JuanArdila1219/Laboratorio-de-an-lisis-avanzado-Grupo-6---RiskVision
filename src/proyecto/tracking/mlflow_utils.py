@@ -132,3 +132,23 @@ def log_run(run_name: str, params: dict, metrics: dict, tags: dict | None = None
         if tags:
             mlflow.set_tags(tags)
         return run.info.run_id
+
+
+def log_tournament_runs(csv_path, tags: dict | None = None) -> list[dict]:
+    """Registra UNA ejecución por candidato del torneo con las métricas por pliegue YA medidas (no recalcula nada).
+
+    Es un registro a posteriori: las métricas salen de `reports/05_torneo_por_pliegue.csv`. Cada ejecución guarda la media
+    de cada métrica y la desviación del ROC AUC entre pliegues. Debe llamarse después de `configure_mlflow()` y `set_experiment()`.
+    """
+    import pandas as pd
+
+    table = pd.read_csv(csv_path)
+    metric_columns = [c for c in table.columns if c not in {"modelo", "pliegue"}]
+    receipts = []
+    for model, group in table.groupby("modelo", sort=False):
+        metrics = {f"mean_{c}": group[c].mean() for c in metric_columns}
+        metrics["std_roc_auc"] = group["roc_auc"].std(ddof=1) if len(group) > 1 else 0.0
+        run_id = log_run(f"torneo · {model}", {"modelo": model, "n_pliegues": len(group), "fuente": Path(csv_path).name},
+                         metrics, tags={"etapa": "05_torneo", "registro": "a_posteriori", **(tags or {})})
+        receipts.append({"modelo": model, "run_id": run_id, "mean_roc_auc": round(float(metrics["mean_roc_auc"]), 4)})
+    return receipts

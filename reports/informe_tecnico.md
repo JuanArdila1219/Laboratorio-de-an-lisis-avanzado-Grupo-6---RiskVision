@@ -49,6 +49,7 @@ quitar `PAY_0` (cuesta ~0,03: dependencia fuerte del último estado de pago). La
 Mismos 24.000 clientes y mismos 15 pliegues para todos (5 estratificados × 3 repeticiones). LightGBM, XGBoost y bosque aleatorio quedan prácticamente
 empatados (0,787 ± 0,006); la regresión logística queda 0,008 por debajo (0,7785). Las líneas base: «siempre paga» 0,50 y la regla `PAY_0 ≥ 2` 0,64.
 El torneo descarta: se siguió con LightGBM como principal y la logística como referencia interpretable.
+Cada candidato tiene una ejecución en MLflow (`reports/05_torneo_registro_mlflow.json`), registrada **a posteriori** con las métricas por pliegue ya medidas (`reports/05_torneo_por_pliegue.csv`); en MLflow local, no en Databricks.
 
 ## 5. Optimización y seguimiento
 
@@ -114,4 +115,4 @@ python scripts/run_etapas_07_09.py --approved-by "Nombre" --out resultados.json 
 streamlit run app/streamlit_app.py                    # app local
 ```
 
-Notebook `notebooks/10_ejecucion_real_07_09.ipynb` resume los resultados reales de 07–09.
+Notebook `notebooks/10_resumen_resultados_07_09.ipynb` resume los resultados reales de 07–09.
