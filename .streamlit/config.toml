@@ -1,0 +1,8 @@
+# Tema de RiskVision: azul institucional con fondos suaves.
+[theme]
+base = "light"
+primaryColor = "#0F4C81"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F8FC"
+textColor = "#1F2937"
+font = "sans serif"

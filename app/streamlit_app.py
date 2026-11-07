@@ -37,6 +37,51 @@ DEFAULT_RESPONSIBLE_USE = (
 )
 
 
+# Secciones lógicas del formulario (orden visual); cualquier columna del esquema que no
+# aparezca aquí se muestra al final en "Otros datos".
+FORM_GROUPS = [
+    ("👤 Perfil del cliente", ["LIMIT_BAL", "SEX", "EDUCATION", "MARRIAGE", "AGE"]),
+    ("⏰ Historial de atrasos (del más reciente al más antiguo)", ["PAY_0", "PAY_2", "PAY_3", "PAY_4", "PAY_5", "PAY_6"]),
+    ("🧾 Facturas de los últimos 6 meses (de la más reciente a la más antigua)", ["BILL_AMT1", "BILL_AMT2", "BILL_AMT3", "BILL_AMT4", "BILL_AMT5", "BILL_AMT6"]),
+    ("💵 Pagos de los últimos 6 meses (del más reciente al más antiguo)", ["PAY_AMT1", "PAY_AMT2", "PAY_AMT3", "PAY_AMT4", "PAY_AMT5", "PAY_AMT6"]),
+]
+
+CUSTOM_CSS = """
+<style>
+.hero {
+    background: linear-gradient(120deg, #0F4C81 0%, #1B6FBF 55%, #2E90D9 100%);
+    border-radius: 14px;
+    padding: 1.4rem 1.8rem;
+    margin-bottom: 1.2rem;
+}
+.hero h1 {color: #ffffff; font-size: 2.1rem; margin: 0 0 .4rem 0;}
+.hero p {color: rgba(255, 255, 255, .93); font-size: 1rem; margin: 0;}
+section[data-testid="stForm"] {
+    border: 1px solid #d9e2ec;
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem !important;
+    background: #fbfdff;
+}
+.form-section-title {
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: #0F4C81;
+    margin: .9rem 0 .2rem 0;
+}
+div[data-testid="stMetric"] {
+    background: #f4f8fc;
+    border: 1px solid #d9e2ec;
+    border-radius: 12px;
+    padding: .6rem .9rem;
+}
+div[data-testid="stExpander"] {border-radius: 12px;}
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header[data-testid="stHeader"] {background: transparent;}
+</style>
+"""
+
+
 @st.cache_resource
 def get_model():
     return predict_module.load_model(MODEL_PATH)
@@ -59,7 +104,7 @@ def numeric_field(schema: dict, column: str, key: str):
     if high <= low:
         high = low + 1
     default = min(max(default, low), high)
-    unknown = st.checkbox(f"No sé: {label(schema, column)}", key=f"unk_{key}")
+    unknown = st.checkbox("No sé este dato", key=f"unk_{key}", help=label(schema, column))
     if unknown:
         return np.nan
     if is_int:
@@ -68,23 +113,31 @@ def numeric_field(schema: dict, column: str, key: str):
 
 
 def build_form(schema: dict) -> dict:
-    """Dibuja el formulario (tres columnas) y devuelve una fila de entrada."""
+    """Dibuja el formulario agrupado en secciones lógicas y devuelve una fila de entrada."""
     row = {}
     columns = schema["numeric"] + schema["categorical"]
-    cols = st.columns(3)
-    for i, column in enumerate(columns):
-        with cols[i % 3]:
-            if column in schema["categorical"]:
-                options = schema["categories"][column] + [UNKNOWN]
-                choice = st.selectbox(label(schema, column), options, key=f"cat_{column}")
-                row[column] = np.nan if choice == UNKNOWN else choice
-            else:
-                row[column] = numeric_field(schema, column, f"num_{column}")
+    groups = [(title, [c for c in cols if c in columns]) for title, cols in FORM_GROUPS]
+    covered = [c for _, cols in groups for c in cols]
+    rest = [c for c in columns if c not in covered]
+    if rest:
+        groups.append(("📋 Otros datos", rest))
+    for title, cols in [g for g in groups if g[1]]:
+        st.markdown(f'<div class="form-section-title">{title}</div>', unsafe_allow_html=True)
+        ui = st.columns(3)
+        for i, column in enumerate(cols):
+            with ui[i % 3]:
+                if column in schema["categorical"]:
+                    options = schema["categories"][column] + [UNKNOWN]
+                    choice = st.selectbox(label(schema, column), options, key=f"cat_{column}")
+                    row[column] = np.nan if choice == UNKNOWN else choice
+                else:
+                    row[column] = numeric_field(schema, column, f"num_{column}")
     return row
 
 
 def main() -> None:
-    st.set_page_config(page_title="Mi proyecto", page_icon="🧭", layout="wide")
+    st.set_page_config(page_title="RiskVision", page_icon="🧭", layout="wide")
+    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
     if not MODEL_PATH.exists() or not SCHEMA_PATH.exists():
         st.title("Mi proyecto")
@@ -95,12 +148,16 @@ def main() -> None:
         st.stop()
 
     model, schema = get_model(), get_schema()
-    st.title(schema.get("app_title", "Mi proyecto"))
-    st.caption("Herramienta de apoyo a la decisión. **No decide por sí sola.**")
+    app_title = schema.get("app_title", "RiskVision")
+    st.markdown(
+        f'<div class="hero"><h1>🧭 {app_title}</h1>'
+        '<p>Herramienta de apoyo a la decisión. <b>No decide por sí sola.</b></p></div>',
+        unsafe_allow_html=True,
+    )
 
     with st.form("entrada"):
         row = build_form(schema)
-        submitted = st.form_submit_button("Evaluar", type="primary")
+        submitted = st.form_submit_button("Evaluar riesgo", type="primary", use_container_width=True)
 
     if not submitted:
         st.info("Completa los datos y pulsa **Evaluar**. Marca *No sé* en lo que no conozcas.")
@@ -114,9 +171,13 @@ def main() -> None:
 
     first = result.iloc[0]
     class_names = schema["class_names"]
-    left, right = st.columns(2)
+    left, right = st.columns([2, 3])
     with left:
         st.metric("Resultado sugerido", str(first["decision"]))
+        if len(class_names) > 1:
+            proba_impago = float(first[f"proba_{class_names[1]}"])
+            st.markdown(f"**Probabilidad de impago:** {proba_impago:.1%}")
+            st.progress(proba_impago)
         detail = f"Clase más probable: **{first['most_likely']}**"
         if "expected_cost" in result.columns:
             detail += f" · costo esperado de esta decisión: **{first['expected_cost']:.2f}**"

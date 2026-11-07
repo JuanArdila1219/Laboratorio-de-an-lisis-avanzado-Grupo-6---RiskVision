@@ -1,24 +1,14 @@
-# Curso v2 — Laboratorios de Casos Avanzados (2026)
-# Python 3.12. Instalar con:  uv pip install -r requirements.txt
-# Versiones fijadas con el entorno probado del instructor (Streamlit Community Cloud lee este archivo).
-
-pandas==3.0.6
-xlrd==2.0.2             # lectura del dataset .xls (UCI)
-numpy==2.5.4
-scipy==1.18.1
-scikit-learn==1.9.1
-matplotlib==3.11.2
-seaborn==0.13.2
-xgboost==3.4.1
-lightgbm==4.7.0
-optuna==5.0.0
-shap==0.54.1
-mlflow==3.17.1
-databricks-sdk==0.153.0
-python-dotenv==1.2.4
+# App RiskVision — dependencias con las versiones exactas del entorno donde se creó
+# y verificó el pipeline (bundle aprobado 08-candidate-20261107T002331Z, etapa 08).
+# El pipeline.joblib fue ajustado con pandas 3.0.6 / numpy 2.3.4 / scikit-learn 1.7.2 /
+# joblib 1.5.2 / lightgbm 4.7.0 (verificado con load_bundle y con la serviciabilidad del
+# modelo registrado en MLflow), así que deben permanecer fijadas.
+# Nota: el runtime de Databricks Apps usa Python 3.11; scipy 1.18.1 exige >=3.12, así
+# que se fija 1.17.1 (la disponible equivalente para 3.11; dependencia transitiva de sklearn).
 streamlit==1.66.0
-joblib==1.6.0
-pytest==9.1.1
-nbconvert==7.17.2
-nbformat==5.11.1
-ipykernel==7.4.0
+pandas==3.0.6
+numpy==2.3.4
+scipy==1.17.1
+scikit-learn==1.7.2
+joblib==1.5.2
+lightgbm==4.7.0
