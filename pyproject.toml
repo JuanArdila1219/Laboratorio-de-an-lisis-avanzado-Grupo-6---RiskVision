@@ -1,0 +1,18 @@
+[project]
+name = "laboratorio-de-an-lisis-avanzado-grupo-6-riskvision"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas==3.0.6",
+    "numpy==2.3.4",
+    "scikit-learn==1.7.2",
+    "joblib==1.5.2",
+    "lightgbm==4.7.0",
+    "xgboost==3.4.1",
+    "optuna==5.0.0",
+    "mlflow==3.18.0",
+    "matplotlib==3.11.2",
+]
+
+[tool.databricks.environment]
+environment_version = "6"

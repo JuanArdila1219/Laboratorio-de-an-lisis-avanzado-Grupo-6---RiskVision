@@ -1,0 +1,1479 @@
+{
+  "antecedent": {
+    "author": "Estefanía",
+    "branch": "origin/Estefania",
+    "commit": "e4067168e4f75dfe3c4f9f5e83cf20df797775c5",
+    "decision_rule": "Conservar original si el IC de penalización optimizado-original no queda íntegramente bajo cero",
+    "evidence_status": "reported_by_estefania_not_reexecuted",
+    "experiment": "/Users/estefaniacg1995@gmail.com/riskvision-optimizacion",
+    "features": [
+      "utilization_mean",
+      "pending_balance_last",
+      "delay_streak",
+      "n_zero_payments",
+      "log_limit"
+    ],
+    "limitations": [
+      "Métricas de otro experimento; no son validación propia de 07",
+      "Reserva y prueba original expuestas previamente; no evaluación independiente",
+      "IC de penalización, no de AUC; cruzar cero no demuestra equivalencia",
+      "Costos 5:1 hipotéticos, no ahorro económico demostrado",
+      "Sin huella de entrenamiento, versiones ni run_id completos en los informes publicados",
+      "Espacio de búsqueda y configuración de ejecución distintos del módulo tuning.py propio",
+      "No hay evidencia ejecutada propia de Optuna ni aprobación definitiva"
+    ],
+    "model": "LightGBM original",
+    "own_real_optimization_executed": false,
+    "params": {
+      "colsample_bytree": 0.8,
+      "learning_rate": 0.03,
+      "min_child_samples": 50,
+      "n_estimators": 300,
+      "n_jobs": 4,
+      "num_leaves": 15,
+      "random_state": 42,
+      "subsample": 0.8,
+      "subsample_freq": 1,
+      "verbose": -1
+    },
+    "penalty_assumption": {
+      "false_negative": 5,
+      "false_positive": 1,
+      "threshold_used": 0.16666666666666666
+    },
+    "reported_metrics": {
+      "best_cv_auc": 0.7869,
+      "n_trials": 12,
+      "penalty_difference_ci95": [
+        -0.0185,
+        0.007166666666666667
+      ],
+      "reserve_auc_rounded": {
+        "optimized": 0.7865,
+        "original": 0.7865
+      },
+      "reserve_penalty_rounded": {
+        "optimized": 0.543,
+        "original": 0.549
+      }
+    },
+    "sources": [
+      "reports/06_best_params.json",
+      "reports/06_optimizacion.md",
+      "notebooks/06_optimizacion.ipynb"
+    ],
+    "team_decision": "Adoptar la configuración original como candidata; pendiente de validación propia"
+  },
+  "calibration": {
+    "LightGBM original": "none",
+    "Logística E": "none"
+  },
+  "candidate_parameters": {
+    "LightGBM original": {
+      "boosting_type": "gbdt",
+      "class_weight": null,
+      "colsample_bytree": 0.8,
+      "importance_type": "split",
+      "learning_rate": 0.03,
+      "max_depth": -1,
+      "min_child_samples": 50,
+      "min_child_weight": 0.001,
+      "min_split_gain": 0.0,
+      "n_estimators": 300,
+      "n_jobs": 4,
+      "num_leaves": 15,
+      "objective": null,
+      "random_state": 42,
+      "reg_alpha": 0.0,
+      "reg_lambda": 0.0,
+      "subsample": 0.8,
+      "subsample_for_bin": 200000,
+      "subsample_freq": 1,
+      "verbose": -1
+    },
+    "Logística E": {
+      "C": 0.5,
+      "class_weight": null,
+      "dual": false,
+      "fit_intercept": true,
+      "intercept_scaling": 1,
+      "l1_ratio": null,
+      "max_iter": 2000,
+      "multi_class": "deprecated",
+      "n_jobs": null,
+      "penalty": "l2",
+      "random_state": null,
+      "solver": "lbfgs",
+      "tol": 0.0001,
+      "verbose": 0,
+      "warm_start": false
+    }
+  },
+  "code": {
+    "branch": "revision-h2-riskvision",
+    "commit": "5e05220ab44e8696dcca9048ff6137b741da4cce",
+    "source": "git",
+    "working_tree_status": "M notebooks/07_validacion_interpretacion.ipynb"
+  },
+  "created_at": "2026-11-07T00:04:03.367333+00:00",
+  "definitive": false,
+  "features": [
+    "utilization_mean",
+    "pending_balance_last",
+    "delay_streak",
+    "n_zero_payments",
+    "log_limit"
+  ],
+  "frozen_at": "2026-11-07T00:15:10.600236+00:00",
+  "frozen_for_evaluation": true,
+  "handoff": {
+    "configuration_sha256": "1e52b4db6e8561d8e0765233c0664dd8cc5c3905d25cc6e83f705de7c2fa017b",
+    "expected_training_shape": [
+      24000,
+      25
+    ],
+    "final_fit_authorization": {
+      "approved_at": "2026-11-07T00:15:10.599755+00:00",
+      "approved_by": "Estefanía",
+      "authorized": true
+    },
+    "final_fit_owner": "08",
+    "format_version": 1,
+    "input_columns": [
+      "LIMIT_BAL",
+      "SEX",
+      "EDUCATION",
+      "MARRIAGE",
+      "AGE",
+      "PAY_0",
+      "PAY_2",
+      "PAY_3",
+      "PAY_4",
+      "PAY_5",
+      "PAY_6",
+      "BILL_AMT1",
+      "BILL_AMT2",
+      "BILL_AMT3",
+      "BILL_AMT4",
+      "BILL_AMT5",
+      "BILL_AMT6",
+      "PAY_AMT1",
+      "PAY_AMT2",
+      "PAY_AMT3",
+      "PAY_AMT4",
+      "PAY_AMT5",
+      "PAY_AMT6"
+    ],
+    "validation_report": {
+      "complementary_evaluation": null,
+      "controls": {
+        "calibrate_real": true,
+        "evaluate_test": false,
+        "export_definitive": false,
+        "fit_real": true
+      },
+      "created_at": "2026-11-07T00:12:29.101552+00:00",
+      "decision": {
+        "antecedent": {
+          "author": "Estefanía",
+          "branch": "origin/Estefania",
+          "commit": "e4067168e4f75dfe3c4f9f5e83cf20df797775c5",
+          "decision_rule": "Conservar original si el IC de penalización optimizado-original no queda íntegramente bajo cero",
+          "evidence_status": "reported_by_estefania_not_reexecuted",
+          "experiment": "/Users/estefaniacg1995@gmail.com/riskvision-optimizacion",
+          "features": [
+            "utilization_mean",
+            "pending_balance_last",
+            "delay_streak",
+            "n_zero_payments",
+            "log_limit"
+          ],
+          "limitations": [
+            "Métricas de otro experimento; no son validación propia de 07",
+            "Reserva y prueba original expuestas previamente; no evaluación independiente",
+            "IC de penalización, no de AUC; cruzar cero no demuestra equivalencia",
+            "Costos 5:1 hipotéticos, no ahorro económico demostrado",
+            "Sin huella de entrenamiento, versiones ni run_id completos en los informes publicados",
+            "Espacio de búsqueda y configuración de ejecución distintos del módulo tuning.py propio",
+            "No hay evidencia ejecutada propia de Optuna ni aprobación definitiva"
+          ],
+          "model": "LightGBM original",
+          "own_real_optimization_executed": false,
+          "params": {
+            "colsample_bytree": 0.8,
+            "learning_rate": 0.03,
+            "min_child_samples": 50,
+            "n_estimators": 300,
+            "n_jobs": 4,
+            "num_leaves": 15,
+            "random_state": 42,
+            "subsample": 0.8,
+            "subsample_freq": 1,
+            "verbose": -1
+          },
+          "penalty_assumption": {
+            "false_negative": 5,
+            "false_positive": 1,
+            "threshold_used": 0.16666666666666666
+          },
+          "reported_metrics": {
+            "best_cv_auc": 0.7869,
+            "n_trials": 12,
+            "penalty_difference_ci95": [
+              -0.0185,
+              0.007166666666666667
+            ],
+            "reserve_auc_rounded": {
+              "optimized": 0.7865,
+              "original": 0.7865
+            },
+            "reserve_penalty_rounded": {
+              "optimized": 0.543,
+              "original": 0.549
+            }
+          },
+          "sources": [
+            "reports/06_best_params.json",
+            "reports/06_optimizacion.md",
+            "notebooks/06_optimizacion.ipynb"
+          ],
+          "team_decision": "Adoptar la configuración original como candidata; pendiente de validación propia"
+        },
+        "calibration": {
+          "LightGBM original": "none",
+          "Logística E": "none"
+        },
+        "candidate_parameters": {
+          "LightGBM original": {
+            "boosting_type": "gbdt",
+            "class_weight": null,
+            "colsample_bytree": 0.8,
+            "importance_type": "split",
+            "learning_rate": 0.03,
+            "max_depth": -1,
+            "min_child_samples": 50,
+            "min_child_weight": 0.001,
+            "min_split_gain": 0.0,
+            "n_estimators": 300,
+            "n_jobs": 4,
+            "num_leaves": 15,
+            "objective": null,
+            "random_state": 42,
+            "reg_alpha": 0.0,
+            "reg_lambda": 0.0,
+            "subsample": 0.8,
+            "subsample_for_bin": 200000,
+            "subsample_freq": 1,
+            "verbose": -1
+          },
+          "Logística E": {
+            "C": 0.5,
+            "class_weight": null,
+            "dual": false,
+            "fit_intercept": true,
+            "intercept_scaling": 1,
+            "l1_ratio": null,
+            "max_iter": 2000,
+            "multi_class": "deprecated",
+            "n_jobs": null,
+            "penalty": "l2",
+            "random_state": null,
+            "solver": "lbfgs",
+            "tol": 0.0001,
+            "verbose": 0,
+            "warm_start": false
+          }
+        },
+        "code": {
+          "branch": "revision-h2-riskvision",
+          "commit": "5e05220ab44e8696dcca9048ff6137b741da4cce",
+          "source": "git",
+          "working_tree_status": "M notebooks/07_validacion_interpretacion.ipynb"
+        },
+        "created_at": "2026-11-07T00:04:03.367333+00:00",
+        "definitive": false,
+        "features": [
+          "utilization_mean",
+          "pending_balance_last",
+          "delay_streak",
+          "n_zero_payments",
+          "log_limit"
+        ],
+        "frozen_at": "2026-11-07T00:12:23.733668+00:00",
+        "frozen_for_evaluation": true,
+        "limitations": [
+          "Prueba original y reserva expuestas previamente: no evaluación independiente",
+          "Selección previa de variables/modelos y posible optimismo de selección",
+          "Intervalos condicionados a los modelos ajustados; no incluyen repetir selección o ajuste",
+          "Penalización 5:1 hipotética y capacidad del 20 % supuesta; no ahorro económico demostrado",
+          "Interpretación asociativa del modelo, no causal ni recomendación automática de negar crédito"
+        ],
+        "model": "LightGBM original",
+        "own_real_optimization_executed": false,
+        "parameter_source": "src/proyecto/models/candidates.py:LGBM_PARAMS",
+        "params": {
+          "colsample_bytree": 0.8,
+          "learning_rate": 0.03,
+          "min_child_samples": 50,
+          "n_estimators": 300,
+          "n_jobs": 4,
+          "num_leaves": 15,
+          "random_state": 42,
+          "subsample": 0.8,
+          "subsample_freq": 1,
+          "verbose": -1
+        },
+        "settings": {
+          "LightGBM original": {
+            "calibration": "none",
+            "threshold": 0.16666666666666666
+          },
+          "Logística E": {
+            "calibration": "none",
+            "threshold": 0.16666666666666666
+          }
+        },
+        "status": "provisional",
+        "threshold": {
+          "LightGBM original": 0.16666666666666666,
+          "Logística E": 0.16666666666666666
+        },
+        "training_sha256": "4e71503c0072bcbf3ec76cf862614c2e322a79a08e21db02f3225b9398028568",
+        "validation_protocol": {
+          "approval": "Protocolo propuesto; autorizar ejecución antes de utilizar datos reales",
+          "bootstrap_draws": 1000,
+          "calibration": "sigmoid con tres pliegues internos y ensemble=False",
+          "oof_splits": 5,
+          "reserve_seed": 7,
+          "reserve_share": 0.25,
+          "seed": 42,
+          "threshold_grid": [
+            0.05,
+            0.1,
+            0.15,
+            0.16666666666666666,
+            0.2,
+            0.25,
+            0.3,
+            0.35,
+            0.39999999999999997,
+            0.44999999999999996,
+            0.49999999999999994,
+            0.5499999999999999,
+            0.6,
+            0.65,
+            0.7,
+            0.75,
+            0.7999999999999999,
+            0.85,
+            0.9,
+            0.95
+          ]
+        },
+        "versions": {
+          "databricks-sdk": "0.162.0",
+          "joblib": "1.5.2",
+          "lightgbm": "4.7.0",
+          "mlflow": "3.18.0",
+          "numpy": "2.3.4",
+          "optuna": "5.0.0",
+          "pandas": "3.0.6",
+          "python": "3.12.3",
+          "python-dotenv": "1.2.4",
+          "scikit-learn": "1.7.2",
+          "scipy": "1.18.1",
+          "xgboost": "3.4.1"
+        }
+      },
+      "definitive": false,
+      "internal_evaluation": {
+        "calibration": {
+          "LightGBM original": {
+            "brier": 0.13318791010597497,
+            "curve": [
+              {
+                "mean_predicted": 0.03854277076583716,
+                "n_clients": 1800,
+                "observed_rate": 0.03888888888888889
+              },
+              {
+                "mean_predicted": 0.061840536465972186,
+                "n_clients": 1800,
+                "observed_rate": 0.06555555555555556
+              },
+              {
+                "mean_predicted": 0.08425854177916364,
+                "n_clients": 1800,
+                "observed_rate": 0.08555555555555555
+              },
+              {
+                "mean_predicted": 0.10799802366607154,
+                "n_clients": 1800,
+                "observed_rate": 0.11166666666666666
+              },
+              {
+                "mean_predicted": 0.1344806115140249,
+                "n_clients": 1800,
+                "observed_rate": 0.14
+              },
+              {
+                "mean_predicted": 0.16410063819621207,
+                "n_clients": 1800,
+                "observed_rate": 0.17555555555555555
+              },
+              {
+                "mean_predicted": 0.20146235012772962,
+                "n_clients": 1800,
+                "observed_rate": 0.1827777777777778
+              },
+              {
+                "mean_predicted": 0.2714929665278463,
+                "n_clients": 1800,
+                "observed_rate": 0.27444444444444444
+              },
+              {
+                "mean_predicted": 0.43560176519591026,
+                "n_clients": 1800,
+                "observed_rate": 0.42944444444444446
+              },
+              {
+                "mean_predicted": 0.7093870212428436,
+                "n_clients": 1800,
+                "observed_rate": 0.7083333333333334
+              }
+            ],
+            "ece": 0.005484815876246667,
+            "log_loss": 0.4246762027510694
+          },
+          "LightGBM original + sigmoid": {
+            "brier": 0.13322522428792288,
+            "curve": [
+              {
+                "mean_predicted": 0.043493789251168105,
+                "n_clients": 1800,
+                "observed_rate": 0.03833333333333333
+              },
+              {
+                "mean_predicted": 0.06797919425808427,
+                "n_clients": 1800,
+                "observed_rate": 0.06777777777777778
+              },
+              {
+                "mean_predicted": 0.09082729253398271,
+                "n_clients": 1800,
+                "observed_rate": 0.08555555555555555
+              },
+              {
+                "mean_predicted": 0.11463290893430668,
+                "n_clients": 1800,
+                "observed_rate": 0.11
+              },
+              {
+                "mean_predicted": 0.14090660343455538,
+                "n_clients": 1800,
+                "observed_rate": 0.14055555555555554
+              },
+              {
+                "mean_predicted": 0.16985302737100164,
+                "n_clients": 1800,
+                "observed_rate": 0.17444444444444446
+              },
+              {
+                "mean_predicted": 0.20591350928296362,
+                "n_clients": 1800,
+                "observed_rate": 0.18333333333333332
+              },
+              {
+                "mean_predicted": 0.2727238053990685,
+                "n_clients": 1800,
+                "observed_rate": 0.2738888888888889
+              },
+              {
+                "mean_predicted": 0.427627461194181,
+                "n_clients": 1800,
+                "observed_rate": 0.43
+              },
+              {
+                "mean_predicted": 0.689860735869955,
+                "n_clients": 1800,
+                "observed_rate": 0.7083333333333334
+              }
+            ],
+            "ece": 0.006479937897196584,
+            "log_loss": 0.4247708303790702
+          },
+          "Logística E": {
+            "brier": 0.13469602898714797,
+            "curve": [
+              {
+                "mean_predicted": 0.05410785218320554,
+                "n_clients": 1800,
+                "observed_rate": 0.057777777777777775
+              },
+              {
+                "mean_predicted": 0.08308732947826135,
+                "n_clients": 1800,
+                "observed_rate": 0.058333333333333334
+              },
+              {
+                "mean_predicted": 0.09916236152167986,
+                "n_clients": 1800,
+                "observed_rate": 0.08888888888888889
+              },
+              {
+                "mean_predicted": 0.11400078518813359,
+                "n_clients": 1800,
+                "observed_rate": 0.12055555555555555
+              },
+              {
+                "mean_predicted": 0.13043477021574423,
+                "n_clients": 1800,
+                "observed_rate": 0.13
+              },
+              {
+                "mean_predicted": 0.15233130493398536,
+                "n_clients": 1800,
+                "observed_rate": 0.16555555555555557
+              },
+              {
+                "mean_predicted": 0.18678409098062948,
+                "n_clients": 1800,
+                "observed_rate": 0.2111111111111111
+              },
+              {
+                "mean_predicted": 0.2567191664526654,
+                "n_clients": 1800,
+                "observed_rate": 0.25222222222222224
+              },
+              {
+                "mean_predicted": 0.41994046825198533,
+                "n_clients": 1800,
+                "observed_rate": 0.42444444444444446
+              },
+              {
+                "mean_predicted": 0.7154973114825144,
+                "n_clients": 1800,
+                "observed_rate": 0.7033333333333334
+              }
+            ],
+            "ece": 0.010440310427959258,
+            "log_loss": 0.43093661429943503
+          },
+          "Logística E + sigmoid": {
+            "brier": 0.13470438737952378,
+            "curve": [
+              {
+                "mean_predicted": 0.05684699208905422,
+                "n_clients": 1800,
+                "observed_rate": 0.058333333333333334
+              },
+              {
+                "mean_predicted": 0.08617720872547527,
+                "n_clients": 1800,
+                "observed_rate": 0.05555555555555555
+              },
+              {
+                "mean_predicted": 0.1022337407295053,
+                "n_clients": 1800,
+                "observed_rate": 0.09111111111111111
+              },
+              {
+                "mean_predicted": 0.11693775019246297,
+                "n_clients": 1800,
+                "observed_rate": 0.11888888888888889
+              },
+              {
+                "mean_predicted": 0.1331864008711954,
+                "n_clients": 1800,
+                "observed_rate": 0.13055555555555556
+              },
+              {
+                "mean_predicted": 0.15471444599133918,
+                "n_clients": 1800,
+                "observed_rate": 0.1661111111111111
+              },
+              {
+                "mean_predicted": 0.18841097269375393,
+                "n_clients": 1800,
+                "observed_rate": 0.21222222222222223
+              },
+              {
+                "mean_predicted": 0.25629320826768803,
+                "n_clients": 1800,
+                "observed_rate": 0.2511111111111111
+              },
+              {
+                "mean_predicted": 0.4138707736394836,
+                "n_clients": 1800,
+                "observed_rate": 0.4255555555555556
+              },
+              {
+                "mean_predicted": 0.7029335671425683,
+                "n_clients": 1800,
+                "observed_rate": 0.7027777777777777
+              }
+            ],
+            "ece": 0.010004319113033844,
+            "log_loss": 0.4309191736931786
+          }
+        },
+        "calibration_recommendations": {
+          "LightGBM original": {
+            "criterion": "Brier y log loss menores, sin descenso del AUC OOF; no selección por reserva/prueba",
+            "recommend_sigmoid": false,
+            "status": "recommendation_pending_review"
+          },
+          "Logística E": {
+            "criterion": "Brier y log loss menores, sin descenso del AUC OOF; no selección por reserva/prueba",
+            "recommend_sigmoid": false,
+            "status": "recommendation_pending_review"
+          }
+        },
+        "comparisons": {
+          "LightGBM original + sigmoid": {
+            "penalty": {
+              "difference": -0.0018333333333332424,
+              "high": 0.0031708333333333163,
+              "independent_evaluation": false,
+              "low": -0.007833333333333359,
+              "metric": "penalty",
+              "requested_draws": 1000,
+              "sign": "variant_minus_reference",
+              "valid_draws": 1000
+            },
+            "roc_auc": {
+              "difference": 0.0,
+              "high": 0.0,
+              "independent_evaluation": false,
+              "low": 0.0,
+              "metric": "roc_auc",
+              "requested_draws": 1000,
+              "sign": "variant_minus_reference",
+              "valid_draws": 1000
+            }
+          },
+          "Logística E": {
+            "penalty": {
+              "difference": 0.01100000000000001,
+              "high": 0.03217916666666666,
+              "independent_evaluation": false,
+              "low": -0.010170833333333323,
+              "metric": "penalty",
+              "requested_draws": 1000,
+              "sign": "variant_minus_reference",
+              "valid_draws": 1000
+            },
+            "roc_auc": {
+              "difference": -0.012874469587592197,
+              "high": -0.0062338515097581605,
+              "independent_evaluation": false,
+              "low": -0.019578945474802913,
+              "metric": "roc_auc",
+              "requested_draws": 1000,
+              "sign": "variant_minus_reference",
+              "valid_draws": 1000
+            }
+          },
+          "Logística E + sigmoid": {
+            "penalty": {
+              "difference": 0.011666666666666714,
+              "high": 0.032175,
+              "independent_evaluation": false,
+              "low": -0.008670833333333378,
+              "metric": "penalty",
+              "requested_draws": 1000,
+              "sign": "variant_minus_reference",
+              "valid_draws": 1000
+            },
+            "roc_auc": {
+              "difference": -0.012874469587592197,
+              "high": -0.0062338515097581605,
+              "independent_evaluation": false,
+              "low": -0.019578945474802913,
+              "metric": "roc_auc",
+              "requested_draws": 1000,
+              "sign": "variant_minus_reference",
+              "valid_draws": 1000
+            }
+          }
+        },
+        "metrics": {
+          "LightGBM original": {
+            "avg_precision": 0.563270169367698,
+            "balanced_accuracy": 0.6995458526438416,
+            "brier": 0.13307840839280735,
+            "confusion_matrix": [
+              [
+                3020,
+                1653
+              ],
+              [
+                328,
+                999
+              ]
+            ],
+            "f1": 0.5021362151294295,
+            "f1_macro": 0.6275797644653506,
+            "flagged_share": 0.442,
+            "lift_top": 2.581009796533534,
+            "log_loss": 0.42421201608319375,
+            "mean_proba": 0.21911686785953247,
+            "n": 6000,
+            "penalty": 0.5488333333333333,
+            "penalty_10": 0.6881666666666667,
+            "penalty_2": 0.29983333333333334,
+            "positive_rate": 0.22116666666666668,
+            "precision": 0.3766968325791855,
+            "precision_1": 0.3766968325791855,
+            "recall": 0.7528259231348907,
+            "recall_0": 0.6462657821527926,
+            "recall_1": 0.7528259231348907,
+            "recall_top": 0.5162019593067069,
+            "recall_top_10": 0.31574981160512433,
+            "recall_top_5": 0.17256970610399397,
+            "roc_auc": 0.7864788195458494,
+            "single_class": false,
+            "threshold": 0.16666666666666666
+          },
+          "LightGBM original + sigmoid": {
+            "avg_precision": 0.563270169367698,
+            "balanced_accuracy": 0.6991408419610097,
+            "brier": 0.13311517307928478,
+            "confusion_matrix": [
+              [
+                2981,
+                1692
+              ],
+              [
+                318,
+                1009
+              ]
+            ],
+            "f1": 0.5009930486593843,
+            "f1_macro": 0.6244302925183525,
+            "flagged_share": 0.45016666666666666,
+            "lift_top": 2.581009796533534,
+            "log_loss": 0.4243103014640222,
+            "mean_proba": 0.21935909361490935,
+            "n": 6000,
+            "penalty": 0.547,
+            "penalty_10": 0.694,
+            "penalty_2": 0.299,
+            "positive_rate": 0.22116666666666668,
+            "precision": 0.3735653461680859,
+            "precision_1": 0.3735653461680859,
+            "recall": 0.760361718161266,
+            "recall_0": 0.6379199657607533,
+            "recall_1": 0.760361718161266,
+            "recall_top": 0.5162019593067069,
+            "recall_top_10": 0.31574981160512433,
+            "recall_top_5": 0.17256970610399397,
+            "roc_auc": 0.7864788195458494,
+            "single_class": false,
+            "threshold": 0.16666666666666666
+          },
+          "Logística E": {
+            "avg_precision": 0.5516137240588698,
+            "balanced_accuracy": 0.7019759167408339,
+            "brier": 0.13511135959801554,
+            "confusion_matrix": [
+              [
+                3254,
+                1419
+              ],
+              [
+                388,
+                939
+              ]
+            ],
+            "f1": 0.5096336499321574,
+            "f1_macro": 0.6461577750562771,
+            "flagged_share": 0.393,
+            "lift_top": 2.532027128862095,
+            "log_loss": 0.43315001553536925,
+            "mean_proba": 0.21831381831320748,
+            "n": 6000,
+            "penalty": 0.5598333333333333,
+            "penalty_10": 0.7288333333333333,
+            "penalty_2": 0.30733333333333335,
+            "positive_rate": 0.22116666666666668,
+            "precision": 0.3982188295165394,
+            "precision_1": 0.3982188295165394,
+            "recall": 0.707611152976639,
+            "recall_0": 0.6963406805050288,
+            "recall_1": 0.707611152976639,
+            "recall_top": 0.506405425772419,
+            "recall_top_10": 0.31876412961567446,
+            "recall_top_5": 0.17256970610399397,
+            "roc_auc": 0.7736043499582572,
+            "single_class": false,
+            "threshold": 0.16666666666666666
+          },
+          "Logística E + sigmoid": {
+            "avg_precision": 0.5516137240588698,
+            "balanced_accuracy": 0.7012315291987465,
+            "brier": 0.13513975593871244,
+            "confusion_matrix": [
+              [
+                3240,
+                1433
+              ],
+              [
+                386,
+                941
+              ]
+            ],
+            "f1": 0.5085112131856255,
+            "f1_macro": 0.6446640895425657,
+            "flagged_share": 0.39566666666666667,
+            "lift_top": 2.532027128862095,
+            "log_loss": 0.43314021650812484,
+            "mean_proba": 0.2180929573331652,
+            "n": 6000,
+            "penalty": 0.5605,
+            "penalty_10": 0.7345,
+            "penalty_2": 0.3075,
+            "positive_rate": 0.22116666666666668,
+            "precision": 0.3963774220724516,
+            "precision_1": 0.3963774220724516,
+            "recall": 0.7091183119819141,
+            "recall_0": 0.6933447464155789,
+            "recall_1": 0.7091183119819141,
+            "recall_top": 0.506405425772419,
+            "recall_top_10": 0.31876412961567446,
+            "recall_top_5": 0.17256970610399397,
+            "roc_auc": 0.7736043499582572,
+            "single_class": false,
+            "threshold": 0.16666666666666666
+          }
+        },
+        "oof_metrics": {
+          "LightGBM original": {
+            "avg_precision": 0.5592856267294061,
+            "balanced_accuracy": 0.7037035650296501,
+            "brier": 0.13318791010597497,
+            "confusion_matrix": [
+              [
+                9080,
+                4938
+              ],
+              [
+                957,
+                3025
+              ]
+            ],
+            "f1": 0.5064880703223106,
+            "f1_macro": 0.6307123369695111,
+            "flagged_share": 0.4423888888888889,
+            "lift_top": 2.5715720743345054,
+            "log_loss": 0.4246762027510694,
+            "mean_proba": 0.22091652254816108,
+            "n": 18000,
+            "penalty": 0.5401666666666667,
+            "penalty_10": 0.6897222222222222,
+            "penalty_2": 0.3010555555555556,
+            "positive_rate": 0.2212222222222222,
+            "precision": 0.3798819540374231,
+            "precision_1": 0.3798819540374231,
+            "recall": 0.7596685082872928,
+            "recall_0": 0.6477386217720075,
+            "recall_1": 0.7596685082872928,
+            "recall_top": 0.5143144148669011,
+            "recall_top_10": 0.320190858864892,
+            "recall_top_5": 0.17076845806127575,
+            "roc_auc": 0.7871812978634989,
+            "single_class": false,
+            "threshold": 0.16666666666666666
+          },
+          "LightGBM original + sigmoid": {
+            "avg_precision": 0.5593000051940914,
+            "balanced_accuracy": 0.6998876525188,
+            "brier": 0.13322522428792288,
+            "confusion_matrix": [
+              [
+                8797,
+                5221
+              ],
+              [
+                907,
+                3075
+              ]
+            ],
+            "f1": 0.5008959113862193,
+            "f1_macro": 0.6212851532312598,
+            "flagged_share": 0.4608888888888889,
+            "lift_top": 2.5728277247614266,
+            "log_loss": 0.4247708303790702,
+            "mean_proba": 0.2223818327529267,
+            "n": 18000,
+            "penalty": 0.542,
+            "penalty_10": 0.6913333333333334,
+            "penalty_2": 0.30144444444444446,
+            "positive_rate": 0.2212222222222222,
+            "precision": 0.3706605593056895,
+            "precision_1": 0.3706605593056895,
+            "recall": 0.7722250125565042,
+            "recall_0": 0.6275502924810957,
+            "recall_1": 0.7722250125565042,
+            "recall_top": 0.5145655449522852,
+            "recall_top_10": 0.320190858864892,
+            "recall_top_5": 0.17101958814665996,
+            "roc_auc": 0.7871920109317724,
+            "single_class": false,
+            "threshold": 0.16666666666666666
+          },
+          "Logística E": {
+            "avg_precision": 0.5477023896653092,
+            "balanced_accuracy": 0.7050498824106396,
+            "brier": 0.13469602898714797,
+            "confusion_matrix": [
+              [
+                9681,
+                4337
+              ],
+              [
+                1117,
+                2865
+              ]
+            ],
+            "f1": 0.5123390557939914,
+            "f1_macro": 0.646280746465661,
+            "flagged_share": 0.4001111111111111,
+            "lift_top": 2.548970366649925,
+            "log_loss": 0.43093661429943503,
+            "mean_proba": 0.22120654406888046,
+            "n": 18000,
+            "penalty": 0.5512222222222222,
+            "penalty_10": 0.7045555555555556,
+            "penalty_2": 0.30283333333333334,
+            "positive_rate": 0.2212222222222222,
+            "precision": 0.3978061649541794,
+            "precision_1": 0.3978061649541794,
+            "recall": 0.7194876946258162,
+            "recall_0": 0.690612070195463,
+            "recall_1": 0.7194876946258162,
+            "recall_top": 0.5097940733299849,
+            "recall_top_10": 0.31793068809643393,
+            "recall_top_5": 0.16951280763435458,
+            "roc_auc": 0.7795116635933179,
+            "single_class": false,
+            "threshold": 0.16666666666666666
+          },
+          "Logística E + sigmoid": {
+            "avg_precision": 0.547607852269619,
+            "balanced_accuracy": 0.7053198768118969,
+            "brier": 0.13470438737952378,
+            "confusion_matrix": [
+              [
+                9590,
+                4428
+              ],
+              [
+                1089,
+                2893
+              ]
+            ],
+            "f1": 0.5118994957091038,
+            "f1_macro": 0.644256019871396,
+            "flagged_share": 0.4067222222222222,
+            "lift_top": 2.550226017076846,
+            "log_loss": 0.4309191736931786,
+            "mean_proba": 0.22116050603425264,
+            "n": 18000,
+            "penalty": 0.5485,
+            "penalty_10": 0.712,
+            "penalty_2": 0.3030555555555556,
+            "positive_rate": 0.2212222222222222,
+            "precision": 0.39516459500068296,
+            "precision_1": 0.39516459500068296,
+            "recall": 0.7265193370165746,
+            "recall_0": 0.6841204166072193,
+            "recall_1": 0.7265193370165746,
+            "recall_top": 0.5100452034153692,
+            "recall_top_10": 0.31767955801104975,
+            "recall_top_5": 0.16926167754897037,
+            "roc_auc": 0.7795535305507686,
+            "single_class": false,
+            "threshold": 0.16666666666666666
+          }
+        },
+        "reserve_clients": 6000,
+        "search_clients": 18000,
+        "threshold_recommendations": {
+          "LightGBM original": {
+            "criterion": "5:1 hipotético; desempate por menor carga y mayor umbral",
+            "scope": "training_oof",
+            "status": "recommendation_pending_review",
+            "threshold": 0.16666666666666666
+          },
+          "LightGBM original + sigmoid": {
+            "criterion": "5:1 hipotético; desempate por menor carga y mayor umbral",
+            "scope": "training_oof",
+            "status": "recommendation_pending_review",
+            "threshold": 0.16666666666666666
+          },
+          "Logística E": {
+            "criterion": "5:1 hipotético; desempate por menor carga y mayor umbral",
+            "scope": "training_oof",
+            "status": "recommendation_pending_review",
+            "threshold": 0.16666666666666666
+          },
+          "Logística E + sigmoid": {
+            "criterion": "5:1 hipotético; desempate por menor carga y mayor umbral",
+            "scope": "training_oof",
+            "status": "recommendation_pending_review",
+            "threshold": 0.16666666666666666
+          }
+        }
+      },
+      "interpretation": [
+        {
+          "auc_decrease_mean": 0.08028872754400004,
+          "auc_decrease_std": 0.0031532251567130123,
+          "feature": "PAY_0"
+        },
+        {
+          "auc_decrease_mean": 0.021073924165680435,
+          "auc_decrease_std": 0.0033349854652471333,
+          "feature": "LIMIT_BAL"
+        },
+        {
+          "auc_decrease_mean": 0.014907553872548763,
+          "auc_decrease_std": 0.0006865628426097162,
+          "feature": "BILL_AMT1"
+        },
+        {
+          "auc_decrease_mean": 0.010498557426612275,
+          "auc_decrease_std": 0.0018922095891570022,
+          "feature": "BILL_AMT2"
+        },
+        {
+          "auc_decrease_mean": 0.004738907198450049,
+          "auc_decrease_std": 0.0019281925284514335,
+          "feature": "PAY_AMT2"
+        },
+        {
+          "auc_decrease_mean": 0.0037820241051908622,
+          "auc_decrease_std": 0.001307377042390871,
+          "feature": "PAY_AMT3"
+        },
+        {
+          "auc_decrease_mean": 0.0034627244229262777,
+          "auc_decrease_std": 0.00031781225037857085,
+          "feature": "PAY_4"
+        },
+        {
+          "auc_decrease_mean": 0.0033369719521031183,
+          "auc_decrease_std": 0.0004826033316948227,
+          "feature": "BILL_AMT4"
+        },
+        {
+          "auc_decrease_mean": 0.002702500906698213,
+          "auc_decrease_std": 0.0005676062001804264,
+          "feature": "EDUCATION"
+        },
+        {
+          "auc_decrease_mean": 0.002652880445974559,
+          "auc_decrease_std": 0.001003755251003538,
+          "feature": "PAY_2"
+        },
+        {
+          "auc_decrease_mean": 0.002497955595089918,
+          "auc_decrease_std": 0.00045356053125580057,
+          "feature": "PAY_3"
+        },
+        {
+          "auc_decrease_mean": 0.0024067294181924436,
+          "auc_decrease_std": 0.0008493077499711777,
+          "feature": "PAY_AMT1"
+        },
+        {
+          "auc_decrease_mean": 0.0022114889508603186,
+          "auc_decrease_std": 0.001140181110408844,
+          "feature": "BILL_AMT6"
+        },
+        {
+          "auc_decrease_mean": 0.0020565318474824457,
+          "auc_decrease_std": 0.0006628502674933471,
+          "feature": "BILL_AMT3"
+        },
+        {
+          "auc_decrease_mean": 0.0019403744933737866,
+          "auc_decrease_std": 0.000501985504450254,
+          "feature": "PAY_5"
+        },
+        {
+          "auc_decrease_mean": 0.0014039026484296002,
+          "auc_decrease_std": 0.0007908657936981159,
+          "feature": "BILL_AMT5"
+        },
+        {
+          "auc_decrease_mean": 0.000970622655344533,
+          "auc_decrease_std": 0.0003326711912339289,
+          "feature": "PAY_6"
+        },
+        {
+          "auc_decrease_mean": 0.0008782031362001951,
+          "auc_decrease_std": 0.0010544029001877226,
+          "feature": "PAY_AMT4"
+        },
+        {
+          "auc_decrease_mean": 0.0007864447931655416,
+          "auc_decrease_std": 0.00040878980846632986,
+          "feature": "MARRIAGE"
+        },
+        {
+          "auc_decrease_mean": 0.0006465496040925833,
+          "auc_decrease_std": 0.0013244437508474797,
+          "feature": "PAY_AMT5"
+        },
+        {
+          "auc_decrease_mean": 0.00020777056092404766,
+          "auc_decrease_std": 0.0003065660865769977,
+          "feature": "SEX"
+        },
+        {
+          "auc_decrease_mean": 9.616080835066488e-05,
+          "auc_decrease_std": 0.00025974015577126763,
+          "feature": "PAY_AMT6"
+        },
+        {
+          "auc_decrease_mean": -0.0002488763634540314,
+          "auc_decrease_std": 0.0005980565152377527,
+          "feature": "AGE"
+        }
+      ],
+      "interpretation_scope": "uncalibrated_original_on_internal_reserve",
+      "limitations": [
+        "Prueba original y reserva expuestas previamente: no evaluación independiente",
+        "Selección previa de variables/modelos y posible optimismo de selección",
+        "Intervalos condicionados a los modelos ajustados; no incluyen repetir selección o ajuste",
+        "Penalización 5:1 hipotética y capacidad del 20 % supuesta; no ahorro económico demostrado",
+        "Interpretación asociativa del modelo, no causal ni recomendación automática de negar crédito"
+      ],
+      "report_id": "e479fb62f1434131890fe48799f9fe6c",
+      "segments": [
+        {
+          "avg_precision": 0.600498154591901,
+          "balanced_accuracy": 0.7001985718104403,
+          "brier": 0.13861790456750728,
+          "confusion_matrix": [
+            [
+              1103,
+              703
+            ],
+            [
+              122,
+              458
+            ]
+          ],
+          "f1": 0.5261344055140724,
+          "f1_macro": 0.6269735043076795,
+          "flagged_share": 0.4865884325230511,
+          "lift_top": 2.587291260030362,
+          "log_loss": 0.43836097222710196,
+          "mean_proba": 0.23588050602251753,
+          "n": 2386,
+          "penalty": 0.5502933780385583,
+          "penalty_10": 0.6848281642917016,
+          "penalty_2": 0.3055322715842414,
+          "positive_rate": 0.24308466051969824,
+          "precision": 0.3944875107665805,
+          "precision_1": 0.3944875107665805,
+          "recall": 0.7896551724137931,
+          "recall_0": 0.6107419712070875,
+          "recall_1": 0.7896551724137931,
+          "recall_top": 0.5172413793103449,
+          "recall_top_10": 0.30344827586206896,
+          "recall_top_5": 0.16206896551724137,
+          "roc_auc": 0.7941989345858631,
+          "segment": "1",
+          "single_class": false,
+          "threshold": 0.16666666666666666,
+          "variable": "SEX"
+        },
+        {
+          "avg_precision": 0.5347166864468652,
+          "balanced_accuracy": 0.6964367176880992,
+          "brier": 0.12942117599855335,
+          "confusion_matrix": [
+            [
+              1917,
+              950
+            ],
+            [
+              206,
+              541
+            ]
+          ],
+          "f1": 0.483467381590706,
+          "f1_macro": 0.6259020274686997,
+          "flagged_share": 0.4125622578859989,
+          "lift_top": 2.5762617088918143,
+          "log_loss": 0.4148707295974812,
+          "mean_proba": 0.20804934139110906,
+          "n": 3614,
+          "penalty": 0.5478693967902601,
+          "penalty_10": 0.6903707802988378,
+          "penalty_2": 0.29607083563918096,
+          "positive_rate": 0.2066961815163254,
+          "precision": 0.36284372904091217,
+          "precision_1": 0.36284372904091217,
+          "recall": 0.7242302543507363,
+          "recall_0": 0.6686431810254622,
+          "recall_1": 0.7242302543507363,
+          "recall_top": 0.5153949129852744,
+          "recall_top_10": 0.32262382864792505,
+          "recall_top_5": 0.18206157965194109,
+          "roc_auc": 0.7795177921312035,
+          "segment": "2",
+          "single_class": false,
+          "threshold": 0.16666666666666666,
+          "variable": "SEX"
+        },
+        {
+          "avg_precision": 0.5849160822068838,
+          "balanced_accuracy": 0.6999639835131168,
+          "brier": 0.1399241101525055,
+          "confusion_matrix": [
+            [
+              932,
+              529
+            ],
+            [
+              109,
+              349
+            ]
+          ],
+          "f1": 0.5224550898203593,
+          "f1_macro": 0.6337295433114586,
+          "flagged_share": 0.45752996352266806,
+          "lift_top": 2.5314319505094613,
+          "log_loss": 0.44202288858946276,
+          "mean_proba": 0.22664387085135576,
+          "n": 1919,
+          "penalty": 0.559666492965086,
+          "penalty_10": 0.689421573736321,
+          "penalty_2": 0.3110995310057322,
+          "positive_rate": 0.23866597186034394,
+          "precision": 0.39749430523917995,
+          "precision_1": 0.39749430523917995,
+          "recall": 0.7620087336244541,
+          "recall_0": 0.6379192334017796,
+          "recall_1": 0.7620087336244541,
+          "recall_top": 0.5065502183406113,
+          "recall_top_10": 0.3056768558951965,
+          "recall_top_5": 0.16375545851528384,
+          "roc_auc": 0.7852244230637029,
+          "segment": "[18, 30)",
+          "single_class": false,
+          "threshold": 0.16666666666666666,
+          "variable": "AGE"
+        },
+        {
+          "avg_precision": 0.551679772692871,
+          "balanced_accuracy": 0.712330336138953,
+          "brier": 0.12345103068742928,
+          "confusion_matrix": [
+            [
+              1619,
+              788
+            ],
+            [
+              152,
+              461
+            ]
+          ],
+          "f1": 0.49516648764769067,
+          "f1_macro": 0.6350892275481154,
+          "flagged_share": 0.41357615894039734,
+          "lift_top": 2.740619902120718,
+          "log_loss": 0.39850162039303116,
+          "mean_proba": 0.20823028154668122,
+          "n": 3020,
+          "penalty": 0.5125827814569537,
+          "penalty_10": 0.6718543046357616,
+          "penalty_2": 0.2768211920529801,
+          "positive_rate": 0.2029801324503311,
+          "precision": 0.36909527622097676,
+          "precision_1": 0.36909527622097676,
+          "recall": 0.7520391517128875,
+          "recall_0": 0.6726215205650187,
+          "recall_1": 0.7520391517128875,
+          "recall_top": 0.5481239804241436,
+          "recall_top_10": 0.33442088091353994,
+          "recall_top_5": 0.18270799347471453,
+          "roc_auc": 0.7988205282173866,
+          "segment": "[30, 45)",
+          "single_class": false,
+          "threshold": 0.16666666666666666,
+          "variable": "AGE"
+        },
+        {
+          "avg_precision": 0.5515796392022265,
+          "balanced_accuracy": 0.6581053154120511,
+          "brier": 0.14752302902313028,
+          "confusion_matrix": [
+            [
+              441,
+              328
+            ],
+            [
+              62,
+              179
+            ]
+          ],
+          "f1": 0.4786096256684492,
+          "f1_macro": 0.5860029260417718,
+          "flagged_share": 0.501980198019802,
+          "lift_top": 2.3443983402489628,
+          "log_loss": 0.46368285536233517,
+          "mean_proba": 0.237103813091531,
+          "n": 1010,
+          "penalty": 0.6316831683168317,
+          "penalty_10": 0.7306930693069307,
+          "penalty_2": 0.3455445544554455,
+          "positive_rate": 0.2386138613861386,
+          "precision": 0.3530571992110454,
+          "precision_1": 0.3530571992110454,
+          "recall": 0.7427385892116183,
+          "recall_0": 0.5734720416124838,
+          "recall_1": 0.7427385892116183,
+          "recall_top": 0.46887966804979253,
+          "recall_top_10": 0.3070539419087137,
+          "recall_top_5": 0.16182572614107885,
+          "roc_auc": 0.7492162586535296,
+          "segment": "[45, 60)",
+          "single_class": false,
+          "threshold": 0.16666666666666666,
+          "variable": "AGE"
+        },
+        {
+          "avg_precision": 0.6907742084057873,
+          "balanced_accuracy": 0.7222222222222222,
+          "brier": 0.15952374479976605,
+          "confusion_matrix": [
+            [
+              28,
+              8
+            ],
+            [
+              5,
+              10
+            ]
+          ],
+          "f1": 0.6060606060606061,
+          "f1_macro": 0.7088274044795784,
+          "flagged_share": 0.35294117647058826,
+          "lift_top": 2.38,
+          "log_loss": 0.49481560378570494,
+          "mean_proba": 0.2243395588239176,
+          "n": 51,
+          "penalty": 0.6470588235294118,
+          "penalty_10": 0.7647058823529411,
+          "penalty_2": 0.3333333333333333,
+          "positive_rate": 0.29411764705882354,
+          "precision": 0.5555555555555556,
+          "precision_1": 0.5555555555555556,
+          "recall": 0.6666666666666666,
+          "recall_0": 0.7777777777777778,
+          "recall_1": 0.6666666666666666,
+          "recall_top": 0.4666666666666667,
+          "recall_top_10": 0.26666666666666666,
+          "recall_top_5": 0.2,
+          "roc_auc": 0.7944444444444445,
+          "segment": "[60, 101)",
+          "single_class": false,
+          "threshold": 0.16666666666666666,
+          "variable": "AGE"
+        }
+      ],
+      "stage": "07",
+      "status": "pending_review"
+    },
+    "validation_report_sha256": "ab9c60cc1849c3691101081a3665d889306d0cafe0889bbbe9d7bbebc42a3c72"
+  },
+  "limitations": [
+    "Prueba original y reserva expuestas previamente: no evaluación independiente",
+    "Selección previa de variables/modelos y posible optimismo de selección",
+    "Intervalos condicionados a los modelos ajustados; no incluyen repetir selección o ajuste",
+    "Penalización 5:1 hipotética y capacidad del 20 % supuesta; no ahorro económico demostrado",
+    "Interpretación asociativa del modelo, no causal ni recomendación automática de negar crédito"
+  ],
+  "model": "LightGBM original",
+  "own_real_optimization_executed": false,
+  "parameter_source": "src/proyecto/models/candidates.py:LGBM_PARAMS",
+  "params": {
+    "colsample_bytree": 0.8,
+    "learning_rate": 0.03,
+    "min_child_samples": 50,
+    "n_estimators": 300,
+    "n_jobs": 4,
+    "num_leaves": 15,
+    "random_state": 42,
+    "subsample": 0.8,
+    "subsample_freq": 1,
+    "verbose": -1
+  },
+  "settings": {
+    "LightGBM original": {
+      "calibration": "none",
+      "threshold": 0.16666666666666666
+    },
+    "Logística E": {
+      "calibration": "none",
+      "threshold": 0.16666666666666666
+    }
+  },
+  "status": "provisional",
+  "threshold": {
+    "LightGBM original": 0.16666666666666666,
+    "Logística E": 0.16666666666666666
+  },
+  "training_sha256": "4e71503c0072bcbf3ec76cf862614c2e322a79a08e21db02f3225b9398028568",
+  "validation_protocol": {
+    "approval": "Protocolo propuesto; autorizar ejecución antes de utilizar datos reales",
+    "bootstrap_draws": 1000,
+    "calibration": "sigmoid con tres pliegues internos y ensemble=False",
+    "oof_splits": 5,
+    "reserve_seed": 7,
+    "reserve_share": 0.25,
+    "seed": 42,
+    "threshold_grid": [
+      0.05,
+      0.1,
+      0.15,
+      0.16666666666666666,
+      0.2,
+      0.25,
+      0.3,
+      0.35,
+      0.39999999999999997,
+      0.44999999999999996,
+      0.49999999999999994,
+      0.5499999999999999,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.7999999999999999,
+      0.85,
+      0.9,
+      0.95
+    ]
+  },
+  "versions": {
+    "databricks-sdk": "0.162.0",
+    "joblib": "1.5.2",
+    "lightgbm": "4.7.0",
+    "mlflow": "3.18.0",
+    "numpy": "2.3.4",
+    "optuna": "5.0.0",
+    "pandas": "3.0.6",
+    "python": "3.12.3",
+    "python-dotenv": "1.2.4",
+    "scikit-learn": "1.7.2",
+    "scipy": "1.18.1",
+    "xgboost": "3.4.1"
+  }
+}
