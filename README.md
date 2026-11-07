@@ -1,6 +1,8 @@
 # Laboratorio-de-an-lisis-avanzado-Grupo-6---RiskVision
 Caso de Negocio Default of Credit Card Clients
 
+**Presentación:** [ver PDF](presentacion/ejecutiva.pdf) (en GitHub se abre directo; el `.html` en GitHub muestra el código, así que hay que descargarlo y abrirlo en el navegador).
+
 **App desplegada:** _enlace público pendiente de publicar en Streamlit Community Cloud_ (en local: `streamlit run app/streamlit_app.py`).
 
 **Resultado:** LightGBM con 5 variables de comportamiento de pago, ROC AUC 0,787 en validación cruzada y 0,782 en la prueba (ya expuesta, no independiente). La app marca como riesgo a quien tenga probabilidad de incumplir ≥ 0,20. Detalle y límites: `models/ficha_modelo.md` e `reports/informe_tecnico.md`.
@@ -21,7 +23,7 @@ Estructura obligatoria del curso. Cada carpeta tiene un propósito:
 | `models/` | `model.joblib`, `input_schema.json` (lo que carga la app) y `ficha_modelo.md`; `_local/` (no se sube) guarda el paquete verificable |
 | `app/` | `streamlit_app.py` |
 | `reports/` | Una sección por hito e `informe_tecnico.md` |
-| `presentacion/` | `ejecutiva.md` (máximo 5 diapositivas) y `ejecutiva.html` (versión visual con la marca RiskVision: ábrela en el navegador, flechas para avanzar, Ctrl+P para PDF) |
+| `presentacion/` | `ejecutiva.md` (máximo 5 diapositivas), `ejecutiva.html` (versión visual con la marca RiskVision; descárgala y ábrela en el navegador, flechas para avanzar) y `ejecutiva.pdf` (la misma presentación, se ve directo en GitHub) |
 
 ## Cómo ejecutarlo
 ```bash
